@@ -1,0 +1,64 @@
+Bootstrap: docker
+From: nvidia/cuda:12.6.2-base-ubuntu24.04
+
+%files
+    environment.yml /environment.yml
+    . /workspace  # Copy the entire project directory into the container
+
+%post
+    apt-get update && apt-get install -y wget bzip2 git \
+    gcc g++ libglib2.0-0 libsm6 libxrender1 libxext6 && rm -rf /var/lib/apt/lists/*
+
+    # Use bash explicitly to avoid 'source' issues
+    bash -c '
+    # Install system dependencies
+    apt-get update && apt-get install -y wget bzip2 git && rm -rf /var/lib/apt/lists/*
+    
+    # Install Miniconda
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+    bash miniconda.sh -b -p /opt/conda
+    rm miniconda.sh
+    export PATH="/opt/conda/bin:$PATH"
+
+    # Ensure Conda is initialized correctly
+    /opt/conda/bin/conda init bash
+    echo "export PATH=/opt/conda/bin:\$PATH" >> /etc/profile
+    echo "source /opt/conda/etc/profile.d/conda.sh" >> /etc/profile
+    echo "conda activate v2e" >> /etc/profile
+
+    # Load Conda in this script
+    source /opt/conda/etc/profile.d/conda.sh
+    conda activate base
+
+    # Create Conda environment with necessary dependencies
+    conda env create python=3.10 pip
+
+    # Activate Conda environment for installation
+    conda activate v2e
+
+    # Upgrade pip & Install PyTorch via pip
+    pip install --upgrade pip
+    
+
+    # Change to the correct working directory before installing the package
+    cd /workspace  # Make sure this is where your Python package lives
+
+    # Install local project (make sure it has setup.py or pyproject.toml)
+    if [ -f "setup.py" ] || [ -f "pyproject.toml" ]; then
+        pip install -e .
+    else
+        echo "ERROR: No setup.py or pyproject.toml found in /workspace"
+        exit 1
+    fi
+    '
+
+%environment
+    export PATH="/opt/conda/bin:$PATH"
+    source /opt/conda/etc/profile.d/conda.sh
+    conda activate v2e
+    export PYTHONPATH="/workspace:$PYTHONPATH"
+
+%runscript
+    echo "Container is running with Conda environment activated!"
+    cd /workspace  # Start in the correct directory
+    exec /bin/bash

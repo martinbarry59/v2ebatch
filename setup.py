@@ -1,5 +1,6 @@
 """Setup script for v2e."""
 
+import setuptools
 from setuptools import setup, find_packages
 
 classifiers = """
@@ -29,12 +30,12 @@ setup(
 
     python_requires=">={}".format("3.7"),
 
-    packages=find_packages(include=['v2ecore','v2ecore.*', 'v2e.*']),
-    # packages=find_packages(),
+    #  packages=find_packages(include=['v2ecore', 'v2e.*']),
+    packages=find_packages(),
     url='https://github.com/SensorsINI/v2e',
     install_requires=[
         'numpy==1.20; python_version<"3.10"',
-        'numpy>=1.24; python_version>="3.10"',
+        'numpy>=1.26; python_version>="3.10"',
         'argcomplete',
         'engineering-notation', # not available on conda
         'tqdm',
@@ -51,7 +52,7 @@ setup(
         'scikit-image' # for some synthetic_input scripts
     ],
 
-    scripts=['v2e.py', "v2ref.py", 'dataset_scripts/ddd/ddd_extract_data.py'],
+    scripts=['v2e.py', 'dataset_scripts/ddd/ddd_extract_data.py'],
 
     entry_points={
         'console_scripts': ['v2e=v2e:main']

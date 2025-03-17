@@ -343,17 +343,7 @@ class EventRenderer(object):
                         vid.frame_times_output_file.write(
                             '{}\t{:10.6f}\n'.format(self.numFramesWritten, t))
                         self.numFramesWritten += 1
-                if self.preview:
-                    name = str(self.video_output_file_name)
-                    cv2.namedWindow(name, cv2.WINDOW_NORMAL)
-                    cv2.imshow(name, img)
-                    if not self.preview_resized:
-                        cv2.resizeWindow(name, 800, 600)
-                        self.preview_resized = True
-                    k=cv2.waitKey(30)
-                    if k==27 or k==ord('x'):
-                        v2e_quit()
-
+                
         return returnedFrames
     def events_to_image(self, events, batch_size):
         # Extract dimensions

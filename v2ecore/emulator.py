@@ -85,6 +85,7 @@ class EventEmulator(object):
 
     def __init__(
             self,
+            vids: object,
             pos_thres: float = 0.2,
             neg_thres: float = 0.2,
             sigma_thres: float = 0.03,
@@ -162,6 +163,7 @@ class EventEmulator(object):
             Record signal and noise event labels to a CSV file
         """
 
+        self.vids = vids
         self.no_events_warning_count = 0
         logger.info(
             "ON/OFF log_e temporal contrast thresholds: "
@@ -223,18 +225,6 @@ class EventEmulator(object):
             np.random.seed(seed)
             random.seed(seed)
 
-        # h5 output
-        self.output_folder = output_folder
-        self.dvs_h5 = dvs_h5
-        self.dvs_h5_dataset = None
-        self.frame_h5_dataset = None
-        self.frame_ts_dataset = None
-        self.frame_ev_idx_dataset = None
-
-        # aedat or text output
-        self.dvs_aedat2 = dvs_aedat2
-        self.dvs_aedat4 = dvs_aedat4
-        self.dvs_text = dvs_text
 
         # event stats
         self.num_events_total = 0
@@ -310,43 +300,10 @@ class EventEmulator(object):
             logger.info('Modeling potential SCIDVS pixel with nonlinear CR highpass amplified log intensity')
 
         try:
-            if dvs_h5:
-                path = os.path.join(self.output_folder, dvs_h5)
-                path = checkAddSuffix(path, '.h5')
-                logger.info('opening event output dataset file ' + path)
-                self.dvs_h5 = h5py.File(path, "w")
-
-                # for events
-                self.dvs_h5_dataset = self.dvs_h5.create_dataset(
-                    name="events",
-                    shape=(0, 4),
-                    maxshape=(None, 4),
-                    dtype="uint32",
-                    compression="gzip")
-
-            if dvs_aedat2:
-                path = os.path.join(self.output_folder, dvs_aedat2)
-                path = checkAddSuffix(path, '.aedat')
-                logger.info('opening AEDAT-2.0 output file ' + path)
-                self.dvs_aedat2 = AEDat2Output(
-                    path, output_width=self.output_width,
-                    output_height=self.output_height, label_signal_noise=self.label_signal_noise)
-
-            if dvs_aedat4:
-                path = os.path.join(self.output_folder, dvs_aedat4)
-                path = checkAddSuffix(path, '.aedat4')
-                logger.info('opening AEDAT-4.0 output file ' + path)
-                self.dvs_aedat4 = AEDat4Output(
-                    path)
-
-            if dvs_text:
-                path = os.path.join(self.output_folder, dvs_text)
-                path = checkAddSuffix(path, '.txt')
-                logger.info('opening text DVS output file ' + path)
-                self.dvs_text = DVSTextOutput(path,label_signal_noise=self.label_signal_noise)
-
-
-
+            for vid in self.vids:
+                vid.dvs_aedat4 = AEDat4Output(
+                    vid.dvs_aedat4)
+            
         except Exception as e:
             logger.error(f'Output file exception "{e}" (maybe you need to specify a supported DVS camera type?)')
             raise e
@@ -406,20 +363,8 @@ class EventEmulator(object):
             median_steps = np.median(self.cs_steps_taken)
             logger.info(
                 f'CSDVS steps statistics: mean+std= {mean_staps:.0f} + {std_steps:.0f} (median= {median_steps:.0f})')
-        if self.dvs_h5 is not None:
-            self.dvs_h5.close()
 
-        if self.dvs_aedat2 is not None:
-            self.dvs_aedat2.close()
-
-        if self.dvs_aedat4 is not None:
-            self.dvs_aedat4.close()
-
-        if self.dvs_text is not None:
-            try:
-                self.dvs_text.close()
-            except:
-                pass
+        
 
         for vw in self.video_writers:
             logger.info(f'closing video AVI {vw}')
@@ -639,11 +584,7 @@ class EventEmulator(object):
         # log_frame: the lowpass filtered brightness values
 
         # like a DAVIS, write frame into the file if it's HDF5
-        if self.frame_h5_dataset is not None:
-            # save frame data
-            self.frame_h5_dataset[self.frame_counter] = \
-                new_frame.astype(np.uint8)
-
+     
         # update frame counter
         self.frame_counter += 1
 
@@ -770,6 +711,9 @@ class EventEmulator(object):
         # print(f'\ndiff_frame max={torch.max(self.diff_frame)} pos_thres mean={torch.mean(self.pos_thres)} expect {int(torch.max(self.diff_frame)/torch.mean(self.pos_thres))} max events')
         pos_evts_frame, neg_evts_frame = compute_event_map(
             self.diff_frame, self.pos_thres, self.neg_thres)
+        ## plot the positive event map
+        
+
         max_num_events_any_pixel = max(pos_evts_frame.max(),
                                        neg_evts_frame.max())  # max number of events in any pixel for this interframe
         max_num_events_any_pixel=max_num_events_any_pixel.cpu().numpy().item() # turn singleton tensor to scalar
@@ -777,7 +721,7 @@ class EventEmulator(object):
             logger.warning(f'Too many events generated for this frame: num_iter={max_num_events_any_pixel}>100 events')
 
         # to assemble all events
-        events = torch.empty((0, 4), dtype=torch.float32, device=self.device)  # ndarray shape (N,4) where N is the number of events are rows are [t,x,y,p]
+        events = torch.empty((0, 5), dtype=torch.float32, device=self.device)  # ndarray shape (N,4) where N is the number of events are rows are [t,x,y,p]
         # event timestamps at each iteration
         # min_ts_steps timestamps are linearly spaced
         # they start after the self.t_previous to make sure
@@ -789,7 +733,7 @@ class EventEmulator(object):
         #  ts = self.t_previous + delta_time * (i + 1) / min_ts_steps
         # if min_ts_steps==1, then there is only a single timestamp at t_frame
         min_ts_steps=max_num_events_any_pixel if max_num_events_any_pixel>0 else 1
-        ts_step = delta_time / min_ts_steps
+        ts_step = delta_time / 1
         ts = torch.linspace(
             start=self.t_previous+ts_step,
             end=t_frame,
@@ -848,7 +792,7 @@ class EventEmulator(object):
                 # update event count frames with the shot noise
                 final_pos_evts_frame += pos_cord
                 final_neg_evts_frame += neg_cord
-
+                
                 # generate events
                 # make a list of coordinates x,y addresses of events
                 # torch.nonzero(as_tuple=True)
@@ -862,7 +806,7 @@ class EventEmulator(object):
                 neg_event_xy = neg_cord.nonzero(as_tuple=True)
 
                 events_curr_iter = self.get_event_list_from_coords(pos_event_xy, neg_event_xy, ts[i])
-
+                
                 # shuffle and append to the events collectors
                 if events_curr_iter is not None:
                     idx = torch.randperm(events_curr_iter.shape[0])
@@ -950,37 +894,13 @@ class EventEmulator(object):
                 logger.warning(f'nonmonotonic timestamp(s) at indices {idx}')
             if signnoise_label is not None:
                 signnoise_label=signnoise_label.cpu().numpy()
-            if self.dvs_h5 is not None:
-                # convert data to uint32 (microsecs) format
-                temp_events = np.array(events, dtype=np.float32)
-                temp_events[:, 0] = temp_events[:, 0] * 1e6
-                temp_events[temp_events[:, 3] == -1, 3] = 0
-                temp_events = temp_events.astype(np.uint32)
-
-                # save events
-                self.dvs_h5_dataset.resize(
-                    self.dvs_h5_dataset.shape[0] + temp_events.shape[0],
-                    axis=0)
-
-                self.dvs_h5_dataset[-temp_events.shape[0]:] = temp_events
-
-            if self.dvs_aedat2 is not None:
-                self.dvs_aedat2.appendEvents(events, signnoise_label=signnoise_label)
-
-            if self.dvs_aedat4 is not None:
-                self.dvs_aedat4.appendEvents(events, signnoise_label=signnoise_label)
+          
+        
+            for vid_idx in range(len(self.vids)): 
+                if self.vids[vid_idx].dvs_aedat4 is not None:
+                    special_events = events[events[:,-1]==vid_idx]
+                    self.vids[vid_idx].dvs_aedat4.appendEvents(special_events, signnoise_label=signnoise_label)
                 
-            if self.dvs_text is not None:
-                if self.label_signal_noise:
-                    self.dvs_text.appendEvents(events, signnoise_label=signnoise_label)
-                else:
-                    self.dvs_text.appendEvents(events)
-
-        if self.frame_ev_idx_dataset is not None:
-            # save frame event idx
-            # determine after the events are added
-            self.frame_ev_idx_dataset[self.frame_counter - 1] = \
-                self.dvs_h5_dataset.shape[0]
 
         if not self.record_single_pixel_states is None:
             if self.single_pixel_sample_count<self.SINGLE_PIXEL_MAX_SAMPLES:
@@ -1041,21 +961,22 @@ class EventEmulator(object):
 
             # events_curr_iter is 2d array [N,4] with 2nd dimension [t,x,y,p]
             events_curr_iter = torch.ones(  # set all elements 1 so that polarities start out positive ON events
-                (num_events, 4), dtype=torch.float32,
+                (num_events, 5), dtype=torch.float32,
                 device=self.device)
             events_curr_iter[:, 0] *= ts  # put all timestamps into events
 
             # pos_event cords
             # events_curr_iter is 2d array [N,4] with 2nd dimension [t,x,y,p]. N is the number of events from this frame
             # we replace the x's (element 1) and y's (element 2) with the on event coordinates in the first num_pos_coord entries of events_curr_iter
-            events_curr_iter[:num_pos_events, 1] = pos_event_xy[1]  # tensor 1 of pos_event_xy is x addresses
-            events_curr_iter[:num_pos_events, 2] = pos_event_xy[0]  # tensor 0 of pos_event_xy is y addresses
-
+            events_curr_iter[:num_pos_events, 1] = pos_event_xy[2]  # tensor 1 of pos_event_xy is x addresses
+            events_curr_iter[:num_pos_events, 2] = pos_event_xy[1]  # tensor 0 of pos_event_xy is y addresses
+            events_curr_iter[:num_pos_events, 4] = pos_event_xy[0]  # adding the z dimension for batch processing
             # neg event cords
             # we replace the x's (element 1) and y's (element 2) with the off event coordinates in the remaining entries num_pos_events: entries of events_curr_iter
-            events_curr_iter[num_pos_events:, 1] = neg_event_xy[1]
-            events_curr_iter[num_pos_events:, 2] = neg_event_xy[0]
+            events_curr_iter[num_pos_events:, 1] = neg_event_xy[2]
+            events_curr_iter[num_pos_events:, 2] = neg_event_xy[1]
             events_curr_iter[num_pos_events:, 3] = -1  # neg events polarity is -1 so flip the signs
+            events_curr_iter[num_pos_events:, 4] = neg_event_xy[0]  # adding the z dimension for batch processing
         return events_curr_iter
 
     def _update_csdvs(self, delta_time):

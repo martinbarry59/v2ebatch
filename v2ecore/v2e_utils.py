@@ -2,15 +2,18 @@ import logging
 import os
 import sys
 import tempfile
-
+import scipy.io
+import numpy as np
+import glob
+import os 
 import numpy as np
 import cv2
 import glob
 import easygui
-from tkinter import filedialog
 from numba import njit
 from engineering_notation import EngNumber as eng
 from pathlib import Path
+import pandas as pd
 
 # adjust for different sensor than DAVIS346
 DVS_WIDTH, DVS_HEIGHT = 346, 260
@@ -65,6 +68,7 @@ class ImageFolderReader(object):
         :returns: always True
         """
         if not skip:
+            
             frame = cv2.imread(self.image_file_list[self.current_frame_idx])
         else:
             frame=None
@@ -307,29 +311,53 @@ def video_writer(output_path, height, width,
             width, height))
     return out
 
+def group_videos_by_name(folder_path):
+        video_files = sorted(glob.glob(os.path.join(folder_path, "*")))  # Get all relevant files
 
-def all_images(data_path):
-    """Return path of all input images. Assume that the ascending order of
-    file names is the same as the order of time sequence.
+        # Extract just the filenames for processing
+        # Convert filenames into a DataFrame for efficient processing
+        df = pd.DataFrame(video_files, columns=["filename"])
+        df["basename"] = [os.path.basename(f) for f in df["filename"]]
+        # Extract video ID (everything before the last underscore)
 
-    Parameters
-    ----------
-    data_path: str
-        path of the folder which contains input images.
+        ids = df["basename"].str.split("_")
+        df["video_id"] = ids.str[1].astype(int)
+        # Group files by video ID
+        video_groups = df.groupby("video_id")["filename"].apply(list).to_dict()
+        ## return lenght of longest group
+        max_group_len = max([len(v) for v in video_groups.values()])
+        ## repeat last group entry to make all groups same length
+        print(f"max_group_len={max_group_len}")
+        for key in video_groups.keys():
+            video_groups[key] = video_groups[key] + [video_groups[key][-1]] * (max_group_len - len(video_groups[key]))
 
-    Returns
-    -------
-    List[str]
-        sorted in numerical order.
-    """
-    images = glob.glob(os.path.join(data_path, '*.png'))
-    if len(images) == 0:
-        raise ValueError(("Input folder is empty or images are not in"
-                          " 'png' format."))
-    images_sorted = sorted(
-        images,
-        key=lambda line: int(line.split(os.sep)[-1].split('.')[0]))
-    return images_sorted
+        return video_groups
+def all_images(data_path, idx):
+        """Return path of all input images. Assume that the ascending order of
+        file names is the same as the order of time sequence.
+
+        Parameters
+        ----------
+        data_path: str
+            path of the folder which contains input images.
+
+        Returns
+        -------
+        List[str]
+            sorted in numerical order.
+        """
+        images = glob.glob(os.path.join(data_path, f'*video_{str(idx).zfill(4)}*.png'))
+        if len(images) == 0:
+            raise ValueError(("Input folder is empty or images are not in"
+                              " 'png' format."))
+        images_sorted = sorted(
+            images,
+            key=lambda line: int(line.split("_")[-1].split('.')[0]))
+        # only works for linux separators with /,
+        # use os.sep according to
+        # https://stackoverflow.com/questions/16010992
+        # /how-to-use-directory-separator-in-both-linux-and-windows-in-python
+        return images_sorted
 
 
 def read_image(path: str) -> np.ndarray:
@@ -471,16 +499,119 @@ def histogram_events_in_time_bins(
     return ts_cnt
 
 
-@njit("float64[:, :](float64[:, :], int64[:], int64[:, :])",
+@njit("float64[:,:, :](int64[:], float64[:, :], int64[:], int64[ :, :], int64)",
       nogil=True, parallel=False)
-def hist2d_numba_seq(tracks, bins, ranges):
-    H = np.zeros((bins[0], bins[1]), dtype=np.float64)
-    delta = 1/((ranges[:, 1] - ranges[:, 0]) / bins)
+def hist2d_numba_seq(dims, tracks, bins, ranges, batch_size):
+    H = np.zeros((batch_size, bins[0], bins[1]), dtype=np.float64)
+    delta = bins / (ranges[:, 1] - ranges[:, 0])
 
     for t in range(tracks.shape[1]):
-        i = (tracks[0, t] - ranges[0, 0]) * delta[0]
-        j = (tracks[1, t] - ranges[1, 0]) * delta[1]
-        if 0 <= i < bins[0] and 0 <= j < bins[1]:
-            H[int(i), int(j)] += 1
+        dim = int(dims[t])
+        x_pos = tracks[0, t]  # x-coordinate explicitly from tracks[0]
+        y_pos = tracks[1, t]  # y-coordinate explicitly from tracks[1]
 
+        # Compute the bin indices correctly (row is y, col is x)
+        j = int((x_pos - ranges[0, 0]) * delta[0])
+        i = int((y_pos - ranges[1, 0]) * delta[1])
+
+        if (0 <= dim < batch_size) and (0 <= i < bins[0]) and (0 <= j < bins[1]):
+            H[dim, i, j] += 1
+    
     return H
+
+
+
+
+def mat_to_mp4(file: str) -> None:
+    video_path = file
+    mat_file_path = video_path.split(".")[0] +"_depth.mat"
+    output_depth_video_path = video_path.split(".")[0] +"_depth.mp4"
+    # test if output file already exists
+    if "depth" in file or os.path.exists(output_depth_video_path):
+        return 
+
+    video_path = file
+    
+    # Load the .mat file
+    mat_data = scipy.io.loadmat(mat_file_path)
+
+    # Load the video file
+    cap = cv2.VideoCapture(video_path)
+
+    # Get video properties
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+    # Define a threshold to remove extreme values (e.g., 10e10)
+    max_valid_depth = 10000  # Adjust this threshold as needed
+
+    all_depth_values = []
+    for key in mat_data:
+        if key.startswith("depth_"):
+            frame = -mat_data[key].astype(np.float32)
+            frame[np.abs(frame) > max_valid_depth] = np.nan
+            valid_values = frame[~np.isnan(frame)]
+            all_depth_values.extend(valid_values.flatten())
+
+    if all_depth_values:
+        global_min = np.min(all_depth_values)
+        global_max = np.max(all_depth_values)
+    else:
+        global_min, global_max = 0, 1  # Default to avoid division by zero
+
+    # Create a video writer for the depth-only video
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    depth_out = cv2.VideoWriter(output_depth_video_path, fourcc, fps, (frame_width, frame_height))
+
+    # Prepare window for side-by-side comparison
+    while cap.isOpened():
+        ret, video_frame = cap.read()
+        if not ret:
+            break
+        
+        # Get the current frame index
+        frame_idx = int(cap.get(cv2.CAP_PROP_POS_FRAMES))
+        depth_key = f'depth_{frame_idx}'
+        
+        if depth_key in mat_data:
+            depth_frame = -mat_data[depth_key].astype(np.float32)
+            
+            # Ignore extreme values by setting them to NaN
+            depth_frame[np.abs(depth_frame) > max_valid_depth] = np.nan
+            
+            # Normalize using global min/max
+            if global_max > global_min:
+                depth_frame = 255 * (depth_frame - global_min) / (global_max - global_min)
+            
+            # Replace NaN with zero (background should be black)
+            background_mask = np.isnan(depth_frame) | (depth_frame == 0)
+            depth_frame = np.nan_to_num(depth_frame, nan=0).astype(np.uint8)
+            
+            # Apply colormap for better depth visualization
+            depth_colored = cv2.applyColorMap(depth_frame, cv2.COLORMAP_JET)
+            
+            # Ensure background remains dark (black or gray)
+            depth_colored[background_mask] = [50, 50, 50]  # Dark gray background
+            
+            # Resize depth frame to match the video frame size
+            depth_resized = cv2.resize(depth_colored, (frame_width, frame_height))
+            
+            # Write the depth frame to the depth video
+            depth_out.write(depth_resized)
+            
+            # Concatenate the original and depth frames side by side
+            combined_frame = np.hstack((video_frame, depth_resized))
+            
+            # Show the frames
+            cv2.imshow('Video and Depth Side-by-Side', combined_frame)
+            
+            # Break on 'q' key press
+            if cv2.waitKey(int(1000 / fps)) & 0xFF == ord('q'):
+                break
+    # Release video writers and windows
+    cap.release()
+    depth_out.release()
+    cv2.destroyAllWindows()
+
+    print(f"Depth video saved as: {output_depth_video_path}")

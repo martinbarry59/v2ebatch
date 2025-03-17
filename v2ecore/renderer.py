@@ -8,7 +8,7 @@ from typing import List
 from engineering_notation import EngNumber  # only from pip
 from enum import Enum
 from numba import jit, njit
-
+from v2ecore.output.aedat4_output import AEDat4Output
 from v2ecore.emulator import EventEmulator
 from v2ecore.v2e_utils import video_writer, read_image, checkAddSuffix, v2e_quit
 from v2ecore.v2e_utils import hist2d_numba_seq
@@ -37,7 +37,7 @@ class EventRenderer(object):
     def __init__(
             self,
             full_scale_count=3,
-            output_path=None,
+            vids=None,
             dvs_vid=None,
             preview=False,
             exposure_mode=ExposureMode.DURATION,  # 'count', 'area-count'
@@ -68,7 +68,7 @@ class EventRenderer(object):
         """
         self.exposure_mode = exposure_mode
         self.exposure_value = exposure_value
-        self.output_path = output_path
+        self.vids = vids
         # must be set by specific renderers,
         # which might only know it once they have data
         self.width = None
@@ -77,7 +77,6 @@ class EventRenderer(object):
         self.accum_mode = 'duration'  # 'duration', 'count', 'area_count'
         # suffix using dvs_vid file name for the frame times
         # when not using constant_time
-        self.dvs_frame_times_suffix = frame_times_suffix
         self.frame_rate_hz = None
         self.event_count = None
         self.frameIntevalS = None
@@ -98,9 +97,6 @@ class EventRenderer(object):
         else:
             raise (f'exposure mode {self.exposure_mode} is unknown; must be duration, count, or area-count')
 
-        self.video_output_file_name = dvs_vid
-        self.video_output_file = None
-        self.frame_times_output_file = None
 
         self.emulator = None
         self.preview = preview
@@ -118,49 +114,42 @@ class EventRenderer(object):
         self.printed_empty_packet_warning = False
 
     def cleanup(self):
-        if self.video_output_file is not None:
-            logger.info(
-                "Closing DVS video output file {} "
-                "after writing {} frames".format(self.video_output_file_name, self.numFramesWritten))
-            if type(self.video_output_file) is not str:
-                self.video_output_file.release()
-            if self.frame_times_output_file is not None:
-                self.frame_times_output_file.close()
-            cv2.destroyAllWindows()
+        for vid in self.vids:
+            if vid.video_output_file is not None:
+                if type(vid.video_output_file) is not str:
+                    vid.video_output_file.release()
+                if vid.frame_times_output_file is not None:
+                    vid.frame_times_output_file.close()
+                cv2.destroyAllWindows()
 
     def _check_outputs_open(self):
         """checks that output video and event datasets files are open"""
+        for vid in self.vids:
 
-        if self.video_output_file is not None:
-            return
+            if vid.video_output_file is not None:
+                return
 
-        if not self.height or not self.width:
-            raise ValueError('height and width not set for output video')
+            if not self.height or not self.width:
+                raise ValueError('height and width not set for output video')
 
-        if self.output_path is None and self.video_output_file is str:
-            logger.warning('output_folder is None; will not write DVS video')
+            if self.vids is None and self.video_output_file is str:
+                logger.warning('output_folder is None; will not write DVS video')
 
-        if self.output_path and type(self.video_output_file_name) is str:
-            fn = checkAddSuffix(
-                os.path.join(self.output_path,
-                             self.video_output_file_name), '.avi')
-            logger.info('opening DVS video output file ' + fn)
-            self.video_output_file = video_writer(
-                fn, self.height, self.width,
-                frame_rate=self.avi_frame_rate)
-            fn = checkAddSuffix(
-                os.path.join(
-                    self.output_path, self.video_output_file_name),
-                self.dvs_frame_times_suffix)
-            logger.info('opening DVS frame times file ' + fn)
-            self.frame_times_output_file = open(fn, 'w')
-            s = '# frame times for {}\n# frame# time(s)\n'.format(
-                self.video_output_file_name)
-            self.frame_times_output_file.write(s)
+            if vid.video_dvs:
+                vid.video_output_file = video_writer(
+                    vid.video_dvs, self.height, self.width,
+                    frame_rate=self.avi_frame_rate)
+                
+                vid.frame_times_output_file = open(vid.dvs_times, 'w')
+                s = '# frame times for {}\n# frame# time(s)\n'.format(
+                    vid.dvs_times)
+                vid.frame_times_output_file.write(s)
+
 
     def render_events_to_frames(self, event_arr: np.ndarray,
                                 height: int, width: int,
-                                return_frames=False) -> np.ndarray:
+                                return_frames=False,
+                                batch_size=8) -> np.ndarray:
         """ Incrementally render event frames.
 
         Frames are appended to the video output file.
@@ -193,7 +182,7 @@ class EventRenderer(object):
         self.height = height
 
         self._check_outputs_open()
-
+        
         if event_arr is None or event_arr.shape[0] == 0:
             if not self.printed_empty_packet_warning:
                 logger.info(
@@ -302,7 +291,7 @@ class EventRenderer(object):
             events = event_arr[start:end]  # events in this frame
             # accumulate event histograms to the current frame,
             # clip values of zero-centered current frame with new events added
-            self.accumulate_event_frame(events, histrange)
+            self.accumulate_event_frame(events, histrange, batch_size=batch_size)
 
             # If not finished with current event_arr,
             # it means above we finished filling a frame, either with
@@ -333,25 +322,27 @@ class EventRenderer(object):
                         (returnedFrames, img[np.newaxis, ...])) \
                         if returnedFrames is not None else \
                         img[np.newaxis, ...]
+                
+                t = None
 
-                if self.video_output_file:
-                    self.video_output_file.write(
-                        cv2.cvtColor((img * 255).astype(np.uint8),
-                                     cv2.COLOR_GRAY2BGR))
-                    t = None
-
-                    if self.exposure_mode==ExposureMode.SOURCE:
-                        t=ts[0] if len(ts)>0 else float('nan')
-                    else:
-                        exposure_mode_cond = (
-                                self.exposure_mode == ExposureMode.COUNT or
-                                self.exposure_mode == ExposureMode.AREA_COUNT)
-                        t = (ts[start] + ts[end]) / 2 if exposure_mode_cond else \
-                            self.currentFrameStartTime + self.frameIntevalS / 2
-
-                    self.frame_times_output_file.write(
-                        '{}\t{:10.6f}\n'.format(self.numFramesWritten, t))
-                    self.numFramesWritten += 1
+                if self.exposure_mode==ExposureMode.SOURCE:
+                    t=ts[0] if len(ts)>0 else float('nan')
+                else:
+                    exposure_mode_cond = (
+                            self.exposure_mode == ExposureMode.COUNT or
+                            self.exposure_mode == ExposureMode.AREA_COUNT)
+                    t = (ts[start] + ts[end]) / 2 if exposure_mode_cond else \
+                        self.currentFrameStartTime + self.frameIntevalS / 2
+                for idx in range(len(self.vids)):
+                    vid = self.vids[idx]
+                    if vid.video_output_file:
+                        vid.video_output_file.write(
+                            cv2.cvtColor((img[idx] * 255).astype(np.uint8),
+                                        cv2.COLOR_GRAY2BGR))
+                        
+                        vid.frame_times_output_file.write(
+                            '{}\t{:10.6f}\n'.format(self.numFramesWritten, t))
+                        self.numFramesWritten += 1
                 if self.preview:
                     name = str(self.video_output_file_name)
                     cv2.namedWindow(name, cv2.WINDOW_NORMAL)
@@ -364,8 +355,20 @@ class EventRenderer(object):
                         v2e_quit()
 
         return returnedFrames
+    def events_to_image(self, events, batch_size):
+        # Extract dimensions
+        img =  np.zeros((batch_size,self.height, self.width), dtype=np.uint8)
+        if len(events)>0:
+            # Get event coordinates
+            x_coords = events[:, 1].astype(int)
+            y_coords = events[:, 2].astype(int)
+            d_coords = events[:, 4].astype(int)
 
-    def accumulate_event_frame(self, events, histrange):
+            # Set the corresponding pixels to 1
+            img[d_coords, y_coords, x_coords] = 1
+
+        return img
+    def accumulate_event_frame(self, events, histrange, batch_size):
         """Accumulate event frame from an array of events.
 
         # Arguments
@@ -378,17 +381,17 @@ class EventRenderer(object):
         """
         pol_on = (events[:, 3] == 1)
         pol_off = np.logical_not(pol_on)
-
         img_on = hist2d_numba_seq(
-            np.array([events[pol_on, 2], events[pol_on, 1]],
-                     dtype=np.float64),
-            bins=np.asarray([self.height, self.width], dtype=np.int64),
-            ranges=histrange)
+        dims=np.int64(events[pol_on, 4]), 
+        tracks=np.array([events[pol_on, 1], events[pol_on, 2]], dtype=np.float64),
+        bins=np.asarray([self.height, self.width], dtype=np.int64),
+        ranges=histrange, batch_size=batch_size)
+
         img_off = hist2d_numba_seq(
-            np.array([events[pol_off, 2], events[pol_off, 1]],
-                     dtype=np.float64),
-            bins=np.asarray([self.height, self.width], dtype=np.int64),
-            ranges=histrange)
+        dims=np.int64(events[pol_off, 4]),
+        tracks=np.array([events[pol_off, 1], events[pol_off, 2]], dtype=np.float64),
+        bins=np.asarray([self.height, self.width], dtype=np.int64),
+        ranges=histrange, batch_size=batch_size)
 
         if self.currentFrame is None:
             self.currentFrame = np.zeros_like(img_on)

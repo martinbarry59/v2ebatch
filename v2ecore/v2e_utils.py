@@ -22,7 +22,7 @@ DVS_WIDTH, DVS_HEIGHT = 346, 260
 
 # good codec, basically mp4 with simplest compression, packed in AVI,
 # only 15kB for a few seconds
-OUTPUT_VIDEO_CODEC_FOURCC = 'XVID'
+OUTPUT_VIDEO_CODEC_FOURCC = 'H264'
 logger = logging.getLogger(__name__)
 
 
@@ -304,11 +304,7 @@ def video_writer(output_path, height, width,
                 fourcc,
                 frame_rate,
                 (width, height))
-    logger.info(
-        'opened {} with {} https://www.fourcc.org/ codec, {}fps, '
-        'and ({}x{}) size'.format(
-            output_path, OUTPUT_VIDEO_CODEC_FOURCC, frame_rate,
-            width, height))
+
     return out
 
 def group_videos_by_name(folder_path):
@@ -327,7 +323,6 @@ def group_videos_by_name(folder_path):
         ## return lenght of longest group
         max_group_len = max([len(v) for v in video_groups.values()])
         ## repeat last group entry to make all groups same length
-        print(f"max_group_len={max_group_len}")
         for key in video_groups.keys():
             video_groups[key] = video_groups[key] + [video_groups[key][-1]] * (max_group_len - len(video_groups[key]))
 
@@ -524,8 +519,9 @@ def hist2d_numba_seq(dims, tracks, bins, ranges, batch_size):
 
 def mat_to_mp4(file: str) -> None:
     video_path = file
-    mat_file_path = video_path.split(".")[0] +"_depth.mat"
-    output_depth_video_path = video_path.split(".")[0] +"_depth.mp4"
+    print(f"Processing {video_path}")
+    mat_file_path = video_path.split(".mp4")[0] +"_depth.mat"
+    output_depth_video_path = video_path.split(".mp4")[0] +"_depth.mp4"
     # test if output file already exists
     if "depth" in file or os.path.exists(output_depth_video_path):
         return 
@@ -561,7 +557,7 @@ def mat_to_mp4(file: str) -> None:
         global_min, global_max = 0, 1  # Default to avoid division by zero
 
     # Create a video writer for the depth-only video
-    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    fourcc = cv2.VideoWriter_fourcc(*OUTPUT_VIDEO_CODEC_FOURCC)
     depth_out = cv2.VideoWriter(output_depth_video_path, fourcc, fps, (frame_width, frame_height))
 
     # Prepare window for side-by-side comparison
@@ -601,14 +597,14 @@ def mat_to_mp4(file: str) -> None:
             depth_out.write(depth_resized)
             
             # Concatenate the original and depth frames side by side
-            combined_frame = np.hstack((video_frame, depth_resized))
+            # combined_frame = np.hstack((video_frame, depth_resized))
             
-            # Show the frames
-            cv2.imshow('Video and Depth Side-by-Side', combined_frame)
+            # # Show the frames
+            # cv2.imshow('Video and Depth Side-by-Side', combined_frame)
             
-            # Break on 'q' key press
-            if cv2.waitKey(int(1000 / fps)) & 0xFF == ord('q'):
-                break
+            # # Break on 'q' key press
+            # if cv2.waitKey(int(1000 / fps)) & 0xFF == ord('q'):
+            #     break
     # Release video writers and windows
     cap.release()
     depth_out.release()

@@ -7,7 +7,7 @@ From: nvidia/cuda:12.6.2-base-ubuntu24.04
 
 %post
     apt-get update && apt-get install -y wget bzip2 git \
-    gcc g++ libglib2.0-0 libsm6 libxrender1 libxext6 && rm -rf /var/lib/apt/lists/*
+    gcc g++ ffmpeg libx264-dev libavcodec-extra libgl1-mesa-glx libglib2.0-0 libsm6 libxrender1 libxext6 libopencv-dev  && rm -rf /var/lib/apt/lists/*
 
     # Use bash explicitly to avoid 'source' issues
     bash -c '
@@ -31,7 +31,7 @@ From: nvidia/cuda:12.6.2-base-ubuntu24.04
     conda activate base
 
     # Create Conda environment with necessary dependencies
-    conda env create python=3.10 pip
+    conda env create python=3.10
 
     # Activate Conda environment for installation
     conda activate v2e

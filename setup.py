@@ -35,7 +35,7 @@ setup(
     url='https://github.com/SensorsINI/v2e',
     install_requires=[
         'numpy==1.20; python_version<"3.10"',
-        'numpy>=1.26; python_version>="3.10"',
+        'numpy==1.26; python_version>="3.10"',
         'argcomplete',
         'engineering-notation', # not available on conda
         'tqdm',
@@ -44,7 +44,10 @@ setup(
         'torch', # pytorch for conda
         'torchvision',
         'numba',
+        'dv_processing',
         #  'Gooey',
+        'pandas',
+        'scipy',
         'matplotlib', # used for some optional statistics plotting
         'plyer',
         'screeninfo', # to get monitor sizes for cv2 window placement

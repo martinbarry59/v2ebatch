@@ -171,21 +171,8 @@ class SuperSloMo(object):
         self.numOrigVideoFramesWritten = 0
         self.numSlomoVideoFramesWritten = 0
 
-        atexit.register(self.cleanup)
         self.model_loaded = False
 
-    def cleanup(self):
-        if self.ori_writer is not None:
-            logger.info(
-                'closing original video AVI {} after '
-                'writing {} frames'.format(self.vid_orig, self.numOrigVideoFramesWritten))
-            self.ori_writer.release()
-        if self.slomo_writer is not None:
-            logger.info(
-                'closing slomo video AVI {} after '
-                'writing {} frames'.format(self.vid_slomo, self.numSlomoVideoFramesWritten))
-            self.slomo_writer.release()
-        cv2.destroyAllWindows()
 
     def __transform(self):
         """create the Transform instances.
@@ -277,289 +264,17 @@ class SuperSloMo(object):
 
         return flow_estimator, warper, interpolator
 
-    def interpolate(self, source_frame_path, output_folder, frame_size):
-        """Run interpolation. \
-            Interpolated frames will be saved in folder self.output_folder.
-
-        Parameters
-        ----------
-        source_frame_path: path that contains source file
-        output_folder:str, folder that stores the interpolated images,
-            numbered 1:N*slowdown_factor.
-        frame_size: tuple (width, height)
-
-
-        Frames will include the input frames, i.e.
-        if there are 2 input frames and slowdown_factor=10,
-        there will be 10 frames written,
-        starting with the first input frame, and ending before
-        the 2nd input frame.
-
-        If  slowdown factor=2, then the first output frame will be
-        the first input frame, and the 2nd output frame will be
-        a new synthetic frame halfway to the 2nd frame.
-
-        If the slowdown_factor is 3, then there will
-        the first input frame followed by 2 more interframes.
-
-        The output will never include the 2nd input frame.
-
-        i.e. if there are 2 input frames and slowdown_factor=10,
-        there will be 10 frames written, frame0 is the first input frame, and frame9 is the 9th interpolated frame.
-        Frame1 is *not* included, so that it can be fed as input for the next interpolation.
-
-        Returns
-        deltaTimes: np.array,
-            Array of delta times relative to src frame intervals. This array must be multiplied by the source frame interval to obtain the times of the frames. There will be a variable number of times depending on auto_upsample and upsampling_factor.
-        avg_upsampling_factor: float,
-            Average upsampling factor, which can be used to compute the average timestamp resolution.
-        """
-        if not output_folder:
-            raise ValueError(
-                'output_folder is None; it must be supplied to store '
-                'the interpolated frames')
-
-        ls=os.listdir(source_frame_path)
-        nframes=len(ls)
-        del ls
-        
-        if nframes/self.batch_size<2:
-            logger.warning(f'only {nframes} input frames with batch_size={self.batch_size}, automatically reducing batch size to provide at least 2 batches')
-            while nframes/self.batch_size<2:
-                self.batch_size=int(self.batch_size/2)
-            logger.info(f'using batch_size={self.batch_size}')
-            
-        video_frame_loader, dim, ori_dim = self.__load_data(
-            source_frame_path, frame_size)
-        
-        if not self.model_loaded:
-            (self.flow_estimator, self.warper,
-             self.interpolator) = self.__model(dim)
-            self.model_loaded = True
-
-        if self.video_path is not None and self.vid_slomo is not None and \
-                self.slomo_writer is None :
-            if "depth" in self.vid_slomo:
-                self.slomo_writer = video_writer(
-                    os.path.join(self.video_path, self.vid_slomo),
-                    ori_dim[1],
-                    ori_dim[0], frame_rate=self.avi_frame_rate
-                )
-
-        numUpsamplingReportsLeft=3 # number of times to report automatic upsampling
-
-        # prepare preview
-        if self.preview:
-            self.name = os.path.basename(str(__file__))
-            cv2.namedWindow(self.name, cv2.WINDOW_NORMAL)
-
-        outputFrameCounter=0 # counts frames written out (input + interpolated)
-        inputFrameCounter=0 # counts source video input frames
-        # torch.cuda.empty_cache()
-        upsamplingSum=0 #stats
-        nUpsamplingSamples=0
-        with torch.no_grad():
-            
-            nImages = len(video_frame_loader)
-            logger.info(f'interpolating {len(video_frame_loader)} batches of frames using batch_size={self.batch_size} with auto_upsample={self.auto_upsample} and minimum upsampling_factor={self.upsampling_factor}')
-            if nImages<2:
-                raise Exception('there are only {} batches in {} and we need at least 2; maybe you need to reduce batch size or increase number of input frames'.format(nImages, source_frame_path))
-
-            interpTimes=None # array to hold times normalized to 1 unit per input frame interval
-
-            unit = ' fr' if self.batch_size == 1 \
-                else ' batch of '+str(self.batch_size)+' fr'
-            
-            for _, (frame0, frame1) in enumerate(
-                    tqdm(video_frame_loader, desc='slomo-interp',
-                         unit=unit), 0):
-                # video_frame_loader delivers self.batch_size batch of frame0 and frame1
-                # frame0 is actually frame0, frame1,.... frameN
-                # frame1 is actually frame1, frame2, .... frameN+1, where N is batch_size-1
-                # that way the slomo computes in parallel the flow from 0->1, 1->2, 2->3... N-1->N
-                
-                I0 = frame0.to(self.device)
-                I1 = frame1.to(self.device)
-                # actual number of frames, account for < batch_size
-                num_batch_frames = I0.shape[0]
-
-                flowOut = self.flow_estimator(torch.cat((I0, I1), dim=1))
-                F_0_1 = flowOut[:, :2, :, :] # flow from 0 to 1
-                F_1_0 = flowOut[:, 2:, :, :] # flow from 1 to 0
-                # dimensions [batch, flow[vx,vy], loc_x,loc_y]
-
-                if self.preview:
-                    start_frame_count = outputFrameCounter
-
-                # compute the upsampling factor
-                if self.auto_upsample:
-                    # compute automatic sample time from maximum flow magnitude such that
-                    #                 #  dt(s)*speed(pix/s)=1pix,
-                    #                 #  i.e., dt(s)=1pix/speed(pix/s)
-                    # we have no time here, so our flow is computed in pixels of motion between frames
-                    # we need to compute speed, so first compute the sum square of x and y vel components
-                    vFlat=torch.flatten(flowOut,2,3) # [batch, [v01x, v01y, v10x, v10y] ]
-                    vx0=vFlat[:,0,:]
-                    vx1=vFlat[:,2,:]
-                    vy0=vFlat[:,1,:]
-                    vy1=vFlat[:,3,:]
-                    sp0=torch.sqrt(vx0*vx0+vy0*vy0)
-                    sp1=torch.sqrt(vx1*vx1+vy1*vy1)
-                    sp=torch.cat((sp0,sp1),1)
-                    maxSpeed= torch.max(torch.max(sp,dim=1)[0]).cpu().item() # this is maximimum movement between frames in pixels dim [batch]
-                    # dim=1 gets max over all pixels
-                    # [0] gets value of max, rather than idx which would be 1
-                    # outer max get max over entire batch
-                    # .cpu() moves to cpu to get actual value as float
-                    # outer .item() gets first element of 0-dim tensor which is the speed
-                    upsampling_factor=int(np.ceil(maxSpeed)) # use ceil to ensure oversampling. compute overall maximum needed upsampling ratio
-                    # it is shared over all frames in batch so just use max value for all of them
-                    if self.upsampling_factor is not None and self.upsampling_factor>upsampling_factor:
-                        upsampling_factor=self.upsampling_factor
-                    if numUpsamplingReportsLeft>0:
-                        logger.info('upsampled by factor {}'.format(upsampling_factor))
-                        numUpsamplingReportsLeft-=1
-                    
-                else:
-                    
-                    upsampling_factor=self.upsampling_factor
-
-                if upsampling_factor<2:
-                    logger.warning('upsampling_factor was less than 2 (maybe very slow motion caused this); set it to 2')
-                    upsampling_factor=2
-
-                nUpsamplingSamples+=1
-                upsamplingSum+=upsampling_factor
-                # compute normalized frame times where 1 is full interval between frames
-                # each src frame increments time by 1 unit, interframes fill between.
-                numOutputFramesThisBatch= upsampling_factor*num_batch_frames
-                interframeTime = 1/upsampling_factor
-                # compute the times of *all* the new frames, covering upsampling_factor * numFramesThisBatch total frames
-                # they all share the same upsampling_factor within this batch, hence same interframeTime
-                interframeTimes = inputFrameCounter + np.array(range(numOutputFramesThisBatch))*interframeTime
-                interframeTimes = interframeTimes.squeeze() # remove trailing , dimension
-                if interpTimes is None:
-                    interpTimes=interframeTimes
-                else:
-                    interpTimes=np.concatenate((interpTimes,interframeTimes))
-
-                # Generate intermediate frames using upsampling_factor
-                # this part is also done in batch mode
-                for intermediateIndex in range(0, upsampling_factor):
-                    t = (intermediateIndex + 0.5) / upsampling_factor
-                    temp = -t * (1 - t)
-                    fCoeff = [temp, t * t, (1 - t) * (1 - t), temp]
-
-                    F_t_0 = fCoeff[0] * F_0_1 + fCoeff[1] * F_1_0
-                    F_t_1 = fCoeff[2] * F_0_1 + fCoeff[3] * F_1_0
-
-                    g_I0_F_t_0 = self.warper(I0, F_t_0)
-                    g_I1_F_t_1 = self.warper(I1, F_t_1)
-
-                    intrpOut = self.interpolator(
-                        torch.cat(
-                            (I0, I1, F_0_1, F_1_0,
-                             F_t_1, F_t_0, g_I1_F_t_1,
-                             g_I0_F_t_0), dim=1))
-
-                    F_t_0_f = intrpOut[:, :2, :, :] + F_t_0
-                    F_t_1_f = intrpOut[:, 2:4, :, :] + F_t_1
-                    V_t_0 = torch.sigmoid(intrpOut[:, 4:5, :, :])
-                    V_t_1 = 1 - V_t_0
-
-                    g_I0_F_t_0_f = self.warper(I0, F_t_0_f)
-                    g_I1_F_t_1_f = self.warper(I1, F_t_1_f)
-
-                    wCoeff = [1 - t, t]
-
-                    Ft_p = (wCoeff[0] * V_t_0 * g_I0_F_t_0_f +
-                            wCoeff[1] * V_t_1 * g_I1_F_t_1_f) / \
-                           (wCoeff[0] * V_t_0 + wCoeff[1] * V_t_1)
-
-                    # Save intermediate frames from this particular upsampling point between src frames
-                    for batchIndex in range(num_batch_frames):
-                        
-                        img = self.to_image(Ft_p[batchIndex].cpu().detach())
-                        img_resize = img.resize(ori_dim, Image.BILINEAR)
-                        # the output frame index is computed
-                        outputFrameIdx=outputFrameCounter + upsampling_factor * batchIndex + intermediateIndex
-                        save_path = os.path.join(
-                            output_folder,
-                            str(outputFrameIdx) + ".png")
-                        img_resize.save(save_path)
-
-                # for preview
-                if self.preview:
-                    stop_frame_count = outputFrameCounter
-
-                    for frame_idx in range(
-                            start_frame_count,
-                            stop_frame_count + upsampling_factor * (num_batch_frames - 1)):
-                        frame_path = os.path.join(
-                            output_folder, str(frame_idx) + ".png")
-                        frame = cv2.imread(frame_path)
-                        cv2.imshow(self.name, frame)
-                        if not self.preview_resized:
-                            cv2.resizeWindow(self.name, 800, 600)
-                            self.preview_resized = True
-                        # wait minimally since interp takes time anyhow
-                        k=cv2.waitKey(1)
-                        if k==27 or k==ord('x'):
-                            v2e_quit()
-                # Set counter accounting for batching of frames
-                inputFrameCounter += num_batch_frames # batch_size-1 because we repeat frame1 as frame0
-                outputFrameCounter += numOutputFramesThisBatch # batch_size-1 because we repeat frame1 as frame0
-
-            # write input frames into video
-            # don't duplicate each frame if called using rotating buffer
-            # of two frames in a row
-            if self.ori_writer:
-                src_files = sorted(
-                    glob.glob("{}".format(source_frame_path) + "/*.npy"))
-                
-                # write original frames into stop-motion video
-                for frame_idx, src_file_path in enumerate(
-                        tqdm(src_files, desc='write-orig-avi',
-                             unit='fr'), 0):
-                    src_frame = np.load(src_file_path)
-                    self.ori_writer.write(
-                        cv2.cvtColor(src_frame, cv2.COLOR_GRAY2BGR))
-                    self.numOrigVideoFramesWritten += 1
-
-            frame_paths = all_images(output_folder)
-            
-            if self.slomo_writer:
-                for path in tqdm(frame_paths,desc='write-slomo-vid',unit='fr'):
-                    frame = self.__read_image(path)
-                    self.slomo_writer.write(
-                        cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR))
-                    self.numSlomoVideoFramesWritten += 1
-        nFramesWritten=len(frame_paths)
-
-        nTimePoints=len(interpTimes)
-        avgUpsampling=upsamplingSum/nUpsamplingSamples
-        logger.info('Wrote {} frames and returning {} frame times.\nAverage upsampling factor={:5.1f}'.format(nFramesWritten,nTimePoints,avgUpsampling))
-        return interpTimes, avgUpsampling
-
-    
-    def set_slomo_writer(self, grouped_videos_paths):
+  
+    def set_video_loaders(self, grouped_videos_paths):
         idx = 0
         video_loaders = []
         ori_dims = []
-        self.slomo_writers = [None] * len(self.vids)
         for vid_indx in range(len(self.vids)):
             frame_size = (self.vids[vid_indx].output_width, self.vids[vid_indx].output_height)
             video_loader, dim, ori_dim = self.__load_data(grouped_videos_paths[vid_indx], frame_size)
             video_loaders.append(video_loader)
             ori_dims.append(ori_dim)
             
-            if self.slomo_writer is None :
-                # if "depth" in self.vid_slomo:
-                    self.slomo_writers[idx] = video_writer(
-                        os.path.join(self.vids[vid_indx].output_folder, self.vids[vid_indx].vid_slomo),
-                        ori_dim[1],
-                        ori_dim[0], frame_rate=self.avi_frame_rate
-                    )
             idx += 1
         return video_loaders, ori_dims, dim
     def interpolate_batch(self, source_frame_paths, tmp_output_folder):
@@ -574,7 +289,7 @@ class SuperSloMo(object):
  
         videos_grouped = group_videos_by_name(source_frame_paths)
         num_videos = len(videos_grouped)
-        video_loaders, ori_dims, dim = self.set_slomo_writer(videos_grouped)
+        video_loaders, ori_dims, dim = self.set_video_loaders(videos_grouped)
         
 
         
@@ -587,7 +302,7 @@ class SuperSloMo(object):
         outputFrameCounter = 0
         with torch.no_grad():
             interpTimes=None
-            for batch_data in tqdm(zip(*video_loaders), desc='Batch Processing Videos', unit='batch'):
+            for batch_data in  zip(*video_loaders):
                 
                 I0_batch = torch.stack([data[0] for data in batch_data]).to(self.device)
                 I1_batch = torch.stack([data[1] for data in batch_data]).to(self.device)
@@ -649,16 +364,12 @@ class SuperSloMo(object):
                 inputFrameCounter += num_batch_frames # batch_size-1 because we repeat frame1 as frame0
                 outputFrameCounter += numOutputFramesThisBatch # batch_size-1 because we repeat frame1 as frame0
     
-                
-        for vid_idx in range(num_videos):
+          
+        for vid in self.vids:
             frame_paths = all_images(tmp_output_folder, vid_idx)
-            if self.slomo_writers[vid_idx]:
-                for path in tqdm(frame_paths,desc='write-slomo-vid',unit='fr'):
-                    frame = self.__read_image(path)
-                    self.slomo_writers[vid_idx].write(
-                        cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR))
-                    self.numSlomoVideoFramesWritten += 1
-                self.slomo_writers[vid_idx].release()
+            frames = [self.__read_image(path) for path in frame_paths]
+            frames = np.stack(frames, axis=0)
+            np.save(vid.vid_slomo, frames)
         return interpTimes, self.upsampling_factor
     
 

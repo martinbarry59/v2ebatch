@@ -11,7 +11,6 @@ import random
 from typing import Optional
 
 import cv2
-import h5py
 import numpy as np
 import torch  # https://pytorch.org/docs/stable/torch.html
 from screeninfo import get_monitors
@@ -22,8 +21,7 @@ from v2ecore.emulator_utils import lin_log
 from v2ecore.emulator_utils import low_pass_filter
 from v2ecore.emulator_utils import rescale_intensity_frame
 from v2ecore.emulator_utils import subtract_leak_current
-from v2ecore.output.ae_text_output import DVSTextOutput
-from v2ecore.output.aedat2_output import AEDat2Output
+
 from v2ecore.output.aedat4_output import AEDat4Output
 from v2ecore.v2e_utils import checkAddSuffix, v2e_quit, video_writer
 
@@ -365,11 +363,6 @@ class EventEmulator(object):
                 f'CSDVS steps statistics: mean+std= {mean_staps:.0f} + {std_steps:.0f} (median= {median_steps:.0f})')
 
         
-
-        for vw in self.video_writers:
-            logger.info(f'closing video AVI {vw}')
-            self.video_writers[vw].release()
-
         if not self.record_single_pixel_states is None:
             self.save_recorded_single_pixel_states()
 
@@ -586,6 +579,7 @@ class EventEmulator(object):
         # like a DAVIS, write frame into the file if it's HDF5
      
         # update frame counter
+
         self.frame_counter += 1
 
         if t_frame < self.t_previous:
@@ -630,7 +624,6 @@ class EventEmulator(object):
             inten01=inten01,
             delta_time=delta_time,
             cutoff_hz=self.cutoff_hz)
-
         # add photoreceptor noise if we are using photoreceptor noise to create shot noise
         if self.photoreceptor_noise and not self.base_log_frame is None:  # only add noise after the initial values are memorized and we can properly lowpass filter the noise
             self.photoreceptor_noise_vrms = compute_photoreceptor_noise_voltage(
@@ -896,10 +889,10 @@ class EventEmulator(object):
                 signnoise_label=signnoise_label.cpu().numpy()
           
         
-            for vid_idx in range(len(self.vids)): 
-                if self.vids[vid_idx].dvs_aedat4 is not None:
-                    special_events = events[events[:,-1]==vid_idx]
-                    self.vids[vid_idx].dvs_aedat4.appendEvents(special_events, signnoise_label=signnoise_label)
+            # for vid_idx in range(len(self.vids)): 
+            #     if self.vids[vid_idx].dvs_aedat4 is not None:
+            #         special_events = events[events[:,-1]==vid_idx]
+            #         self.vids[vid_idx].dvs_aedat4.appendEvents(special_events, signnoise_label=signnoise_label)
                 
 
         if not self.record_single_pixel_states is None:

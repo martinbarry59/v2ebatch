@@ -3,14 +3,11 @@ import cv2
 import os
 import atexit
 import logging
-from tqdm import tqdm
-from typing import List
-from engineering_notation import EngNumber  # only from pip
+
 from enum import Enum
-from numba import jit, njit
-from v2ecore.output.aedat4_output import AEDat4Output
-from v2ecore.emulator import EventEmulator
-from v2ecore.v2e_utils import video_writer, read_image, checkAddSuffix, v2e_quit
+from numba import jit
+
+from v2ecore.v2e_utils import video_writer
 from v2ecore.v2e_utils import hist2d_numba_seq
 
 logger = logging.getLogger(__name__)
@@ -114,36 +111,11 @@ class EventRenderer(object):
         self.printed_empty_packet_warning = False
 
     def cleanup(self):
-        for vid in self.vids:
-            if vid.video_output_file is not None:
-                if type(vid.video_output_file) is not str:
-                    vid.video_output_file.release()
-                if vid.frame_times_output_file is not None:
-                    vid.frame_times_output_file.close()
-                cv2.destroyAllWindows()
+        pass
 
     def _check_outputs_open(self):
         """checks that output video and event datasets files are open"""
-        for vid in self.vids:
-
-            if vid.video_output_file is not None:
-                return
-
-            if not self.height or not self.width:
-                raise ValueError('height and width not set for output video')
-
-            if self.vids is None and self.video_output_file is str:
-                logger.warning('output_folder is None; will not write DVS video')
-
-            if vid.video_dvs:
-                vid.video_output_file = video_writer(
-                    vid.video_dvs, self.height, self.width,
-                    frame_rate=self.avi_frame_rate)
-                
-                vid.frame_times_output_file = open(vid.dvs_times, 'w')
-                s = '# frame times for {}\n# frame# time(s)\n'.format(
-                    vid.dvs_times)
-                vid.frame_times_output_file.write(s)
+        pass
 
 
     def render_events_to_frames(self, event_arr: np.ndarray,
@@ -333,16 +305,7 @@ class EventRenderer(object):
                             self.exposure_mode == ExposureMode.AREA_COUNT)
                     t = (ts[start] + ts[end]) / 2 if exposure_mode_cond else \
                         self.currentFrameStartTime + self.frameIntevalS / 2
-                for idx in range(len(self.vids)):
-                    vid = self.vids[idx]
-                    if vid.video_output_file:
-                        vid.video_output_file.write(
-                            cv2.cvtColor((img[idx] * 255).astype(np.uint8),
-                                        cv2.COLOR_GRAY2BGR))
-                        
-                        vid.frame_times_output_file.write(
-                            '{}\t{:10.6f}\n'.format(self.numFramesWritten, t))
-                        self.numFramesWritten += 1
+                
                 
         return returnedFrames
     def events_to_image(self, events, batch_size):

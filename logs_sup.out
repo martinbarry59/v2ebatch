@@ -1,0 +1,15 @@
+torch device is cuda
+processing 68036 files
+0
+processing 3 files
+Processing /home/martin.barry/projects/surreal/train/run1/ung_91_38/ung_91_38_c0001.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_91_38/ung_91_38_c0002.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0003.mp4
+starting main
+time to extract frames 3.5340323448181152
+saving video
+saved /home/martin.barry/projects/processed_surreal/train/run1/ung_91_38/ung_91_38_c0001vid_slomo.npy
+saved /home/martin.barry/projects/processed_surreal/train/run1/ung_91_38/ung_91_38_c0002vid_slomo.npy
+saved /home/martin.barry/projects/processed_surreal/train/run1/ung_41_10/ung_41_10_c0003vid_slomo.npy
+Time taken to save video: 4.419094800949097
+time to interpolate frames 377.2879796028137

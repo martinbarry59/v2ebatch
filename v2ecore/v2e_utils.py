@@ -22,7 +22,7 @@ DVS_WIDTH, DVS_HEIGHT = 346, 260
 
 # good codec, basically mp4 with simplest compression, packed in AVI,
 # only 15kB for a few seconds
-OUTPUT_VIDEO_CODEC_FOURCC = 'H264'
+OUTPUT_VIDEO_CODEC_FOURCC = 'mp4v'
 logger = logging.getLogger(__name__)
 
 

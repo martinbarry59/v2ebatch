@@ -595,8 +595,7 @@ class EventEmulator(object):
             logger.warning('log_frame is True but input frome is not np.float32 datatype')
 
         # convert into torch tensor
-        self.new_frame = torch.tensor(new_frame, dtype=torch.float64,
-                                      device=self.device)
+        self.new_frame = new_frame.to(torch.float64)
         # lin-log mapping, if input is not already float32 log input
         self.log_new_frame = lin_log(self.new_frame) if not self.log_input else self.new_frame
 
@@ -889,10 +888,10 @@ class EventEmulator(object):
                 signnoise_label=signnoise_label.cpu().numpy()
           
         
-            # for vid_idx in range(len(self.vids)): 
-            #     if self.vids[vid_idx].dvs_aedat4 is not None:
-            #         special_events = events[events[:,-1]==vid_idx]
-            #         self.vids[vid_idx].dvs_aedat4.appendEvents(special_events, signnoise_label=signnoise_label)
+            for vid_idx in range(len(self.vids)): 
+                if self.vids[vid_idx].dvs_aedat4 is not None:
+                    special_events = events[events[:,-1]==vid_idx]
+                    self.vids[vid_idx].dvs_aedat4.appendEvents(special_events, signnoise_label=signnoise_label)
                 
 
         if not self.record_single_pixel_states is None:

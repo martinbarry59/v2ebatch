@@ -277,6 +277,37 @@ class SuperSloMo(object):
             
             idx += 1
         return video_loaders, ori_dims, dim
+    def process_videos_tensor(self, Ft_p, ori_dims, upsampling_factor):
+        """
+        Efficiently processes video frames, resizing and keeping everything in tensor format.
+
+        Parameters:
+        - Ft_p: Tensor of shape (num_videos, num_batch_frames, C, H, W)
+        - ori_dims: List of (H, W) tuples specifying original dimensions per video.
+        - upsampling_factor: Factor to adjust output indexing.
+
+        Returns:
+        - output_tensor: Tensor of resized frames (num_videos, num_batch_frames, C, new_H, new_W).
+        """
+        num_videos, num_batch_frames, C, H, W = Ft_p.shape
+        import torchvision.transforms.functional as F
+        from torchvision.transforms import Resize
+ 
+
+        # Resize all frames in a batch-wise manner
+        resized_images = []
+        for vid_idx in range(num_videos):
+            new_H, new_W = ori_dims[vid_idx]
+            resize_op = Resize((new_H, new_W), interpolation=F.InterpolationMode.BILINEAR)
+            resized_images.append(resize_op(Ft_p[vid_idx]))  # Apply resize to the full batch at once
+
+        # Stack back into a tensor
+        output_tensor = torch.stack(resized_images, dim=0)  # Shape: (num_videos, num_batch_frames, C, new_H, new_W)
+
+        # Compute output indices (vectorized version)
+
+
+        return output_tensor.squeeze(2)
     def interpolate_batch(self, source_frame_paths, tmp_output_folder):
         """
         Interpolate frames for multiple videos in parallel.
@@ -297,7 +328,7 @@ class SuperSloMo(object):
         if not self.model_loaded:
             self.flow_estimator, self.warper, self.interpolator = self.__model(dim)
             self.model_loaded = True
-        
+        all_frames_slomo = torch.zeros((num_videos, len(video_loaders[1]) * self.upsampling_factor * self.batch_size, ori_dims[0][0], ori_dims[0][1]), device=self.device, dtype=torch.uint8)
         inputFrameCounter = 0
         outputFrameCounter = 0
         with torch.no_grad():
@@ -354,23 +385,32 @@ class SuperSloMo(object):
                     
                     Ft_p = Ft_p.view(num_videos, num_batch_frames, *Ft_p.shape[1:])
                     # Save frames in parallel
-                    for vid_idx in range(num_videos):
-                        for batch_idx in range(num_batch_frames):
-                            img = self.to_image(Ft_p[vid_idx, batch_idx].cpu().detach())
-                            img_resize = img.resize(ori_dims[vid_idx], Image.BILINEAR)
-                            output_idx = outputFrameCounter + self.upsampling_factor * batch_idx + intermediate_idx
-                            save_path = os.path.join( tmp_output_folder, f'video_{str(vid_idx).zfill(4)}_frame_{str(output_idx).zfill(8)}.png')
-                            img_resize.save(save_path)
+                    output_tensors = self.process_videos_tensor(Ft_p, ori_dims, self.upsampling_factor)
+                    output_tensors + intermediate_idx
+                    outputFrameIdx=outputFrameCounter + torch.arange(num_batch_frames) * self.upsampling_factor + intermediate_idx
+                    all_frames_slomo[:, outputFrameIdx , :, :] = ((output_tensors + 0.48)* 255 ).clamp(0, 255).to(torch.uint8)
+                    
+                    # for vid_idx in range(num_videos):
+                    #     for batch_idx in range(num_batch_frames):
+                    #         print(Ft_p[vid_idx, batch_idx])
+                    #         img = self.to_image(Ft_p[vid_idx, batch_idx].cpu().detach())
+                    #         print(img.size )
+                    #         exit()
+                    #         img_resize = img.resize(ori_dims[vid_idx], Image.BILINEAR)
+                    #         output_idx = outputFrameCounter + self.upsampling_factor * batch_idx + intermediate_idx
+                    #         save_path = os.path.join( tmp_output_folder, f'video_{str(vid_idx).zfill(4)}_frame_{str(output_idx).zfill(8)}.png')
+                    #         img_resize.save(save_path)
                 inputFrameCounter += num_batch_frames # batch_size-1 because we repeat frame1 as frame0
                 outputFrameCounter += numOutputFramesThisBatch # batch_size-1 because we repeat frame1 as frame0
-    
-          
+        idx = 0
         for vid in self.vids:
-            frame_paths = all_images(tmp_output_folder, vid_idx)
-            frames = [self.__read_image(path) for path in frame_paths]
-            frames = np.stack(frames, axis=0)
-            np.save(vid.vid_slomo, frames)
-        return interpTimes, self.upsampling_factor
+            import h5py
+
+            with h5py.File(vid.vid_slomo, "w") as f:
+                f.create_dataset("vids", data=all_frames_slomo[idx].cpu().detach().numpy(), compression="gzip")
+
+            idx += 1
+        return all_frames_slomo, interpTimes, self.upsampling_factor
     
 
     @staticmethod

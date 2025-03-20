@@ -18,7 +18,6 @@ import cv2
 import numpy as np
 import os
 from tempfile import TemporaryDirectory
-from tqdm import tqdm
 import json
 import torch
 from v2ecore.v2e_utils import read_image, \
@@ -106,7 +105,7 @@ def set_args():
     args.output_width = 346
     args.output_height = 260
     args.cutoff_hz=15
-    args.batch_size=16
+    args.batch_size=4
     # DVS exposure
     exposure_mode, exposure_val, area_dimension = \
         v2e_check_dvs_exposure_args(args)
@@ -353,14 +352,13 @@ def get_models(args, vids, exposure_mode, exposure_val, area_dimension, torch_de
                 f'leak and shot noise rates')
             emulator.set_dvs_params(args.dvs_params)
 
-        # eventRenderer = EventRenderer(
-        #     vids=vids,
-        #     dvs_vid=args.dvs_vid, preview=not args.no_preview, full_scale_count=args.dvs_vid_full_scale,
-        #     exposure_mode=exposure_mode,
-        #     exposure_value=exposure_val,
-        #     area_dimension=area_dimension,
-        #     avi_frame_rate=args.avi_frame_rate)
-        eventRenderer = None
+        eventRenderer = EventRenderer(
+            vids=vids,
+            dvs_vid=args.dvs_vid, preview=not args.no_preview, full_scale_count=args.dvs_vid_full_scale,
+            exposure_mode=exposure_mode,
+            exposure_value=exposure_val,
+            area_dimension=area_dimension,
+            avi_frame_rate=args.avi_frame_rate)
     else:
         emulator, eventRenderer = None, None
     return emulator, eventRenderer, slomo, srcFrameIntervalS, slowdown_factor
@@ -370,7 +368,7 @@ def slowmo_upsampling(args, slomo, source_frames_dir, interpFramesFolder, srcFra
         # 1.png, 2.png, etc
         import time
         start = time.time()
-        interpTimes, avgUpsamplingFactor = slomo.interpolate_batch(source_frames_dir, interpFramesFolder)
+        slow_mo_vids, interpTimes, avgUpsamplingFactor = slomo.interpolate_batch(source_frames_dir, interpFramesFolder)
         print(f"JUST THIS time to interpolate frames {time.time() - start}")
         avgTs = srcFrameIntervalS / avgUpsamplingFactor
         # check for undersampling wrt the
@@ -380,14 +378,13 @@ def slowmo_upsampling(args, slomo, source_frames_dir, interpFramesFolder, srcFra
             check_lowpass(args.cutoff_hz, 1/avgTs, logger)
 
         # read back to memory
-        grouped_videos = group_videos_by_name(interpFramesFolder)
         # number of frames¨
 
-    return grouped_videos, interpTimes
-def event_sampling(grouped_vid_paths, vids, emulator, eventRenderer, interpTimes, args):
+    return slow_mo_vids, interpTimes
+def event_sampling(vids_slowmo, vids, emulator, eventRenderer, interpTimes, args):
     import time
     start = time.time()
-    nFrames = len(grouped_vid_paths[0])
+    nFrames = vids_slowmo.shape[1]
     # interpTimes is in units of 1 per input frame,
     # normalize it to src video time range
     real_dur = max([vid.srcVideoRealProcessedDuration for vid in vids])
@@ -403,34 +400,30 @@ def event_sampling(grouped_vid_paths, vids, emulator, eventRenderer, interpTimes
         emulator.prepare_storage(nFrames, interpTimes)
 
     # generate events from frames and accumulate events to DVS frames for output DVS video
-    print(f"end of setup in  {time.time() - start}s")
     with torch.no_grad():
-        for i in range(nFrames):
+        from tqdm import tqdm
+        for i in tqdm(range(nFrames)):
             
             
-            images = [np.expand_dims(read_image(grouped_vid_paths[j][i]), axis=0) for j in range(len(vids))]
-            # Alternative: images = [read_image(grouped_vid_paths[j][i])[None, :, :] for j in range(len(vids))]
-            ## Concatenate along batch dimension (first axis)
-            fr = np.concatenate(images, axis=0)
+            fr = vids_slowmo[:, i]
 
-
-            # _ = emulator.generate_events(
-            #     fr, interpTimes[i])
+            newEvents = emulator.generate_events(
+                fr, interpTimes[i])
             
-            # if newEvents is not None and \
-            #         newEvents.shape[0] > 0 \
-            #         and not args.skip_video_output:
-            #     events = np.append(events, newEvents, axis=0)
-            #     events = np.array(events)
+            if newEvents is not None and \
+                    newEvents.shape[0] > 0 \
+                    and not args.skip_video_output:
+                events = np.append(events, newEvents, axis=0)
+                events = np.array(events)
                 
-                # if i % args.batch_size == 0:
-                #     eventRenderer.render_events_to_frames(
-                #         events, height=args.output_height,
-                #         width=args.output_width,
-                #         batch_size = len(vids))
-                #     events = np.zeros((0, 5), dtype=np.float32)
-        # process leftover events
-        print(f"time to generate all events within loop {time.time() - start}")
+        #         if i % args.batch_size == 0:
+        #             eventRenderer.render_events_to_frames(
+        #                 events, height=args.output_height,
+        #                 width=args.output_width,
+        #                 batch_size = len(vids))
+        #             events = np.zeros((0, 5), dtype=np.float32)
+        # # process leftover events
+        # print(f"time to generate all events within loop {time.time() - start}")
         # if len(events) > 0 and not args.skip_video_output:
         #     eventRenderer.render_events_to_frames(
         #         events, height=args.output_height, width=args.output_width, batch_size = len(vids))
@@ -448,12 +441,13 @@ class VideoInfos:
         else:
             self.processed_folder = self.output_folder.replace("surreal", "processed_surreal")
             self.dvs_aedat4 =  self.processed_folder + '/dvs.aedat4'
-            
+            self.video_dvs = self.processed_folder + '/dvs.mp4'
             self.dvs_times = self.processed_folder + '/dvs_frames_times.txt'
+        self.video_output_file = None
         self.frame_times_output_file = None
         self.output_folder = self.output_folder.replace("surreal", "processed_surreal")
         self.args = args    
-        self.vid_slomo = self.processed_folder + "vid_slomo_depth.npy" if "_depth" in file_path else self.processed_folder + "vid_slomo.npy"
+        self.vid_slomo = self.processed_folder + "/vid_slomo_depth.h5" if "_depth" in file_path else self.processed_folder + "/vid_slomo.h5"
         
         self.output_width, self.output_height = set_output_dimension(
         args.output_width, args.output_height,
@@ -589,7 +583,7 @@ def main(file_paths: str):
     
     
     emulator, eventRenderer, slomo, srcFrameIntervalS, slowdown_factor = get_models(args, vids, exposure_mode, exposure_val, area_dimension, torch_device)
-    with TemporaryDirectory(dir = "/home/martin.barry/projects/") as source_frames_dir:
+    with TemporaryDirectory() as source_frames_dir:
         vid_idx = 0
         for vid in vids:
             num_frames = tmp_npy(vid, emulator, source_frames_dir, vid_idx)
@@ -598,16 +592,15 @@ def main(file_paths: str):
             
         print(f"time to extract frames {time.time() - start}")
         
-        with TemporaryDirectory(dir = "/home/martin.barry/projects/") as interpFramesFolder:
+        with TemporaryDirectory() as interpFramesFolder:
             interpTimes = None
             # make input to slomo
-            interpFramesFilenames, interpTimes = slowmo_upsampling(args, slomo, source_frames_dir, interpFramesFolder, 
+            slow_mo_vids, interpTimes = slowmo_upsampling(args, slomo, source_frames_dir, interpFramesFolder, 
                                                                     srcFrameIntervalS, slowdown_factor, logger)
             print(f"time to interpolate frames {time.time() - start}")
-            exit()
             if emulator is not None:   
                 # compute times of output integrated frames
-                event_sampling(interpFramesFilenames, vids, emulator, eventRenderer, interpTimes, args)
+                event_sampling(slow_mo_vids, vids, emulator, eventRenderer, interpTimes, args)
                 # eventRenderer.cleanup()
                 emulator.cleanup()
                 print(f"time to generate events {time.time() - start}")
@@ -625,9 +618,11 @@ if __name__ == "__main__":
     import os
 
     data_path = "/home/martin.barry/projects/surreal/" ## change to your data path
+    data_path = "/home/martin-barry/Downloads/surreal/"
+
     files = glob.glob(os.path.join(data_path, "**/*.mp4"), recursive = True)
     files = [file for file in files if not "depth" in file]
-    batch_size = 3
+    batch_size = 2
     print(f"processing {len(files)} files")
     
     start = time.time()

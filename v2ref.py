@@ -107,7 +107,7 @@ def set_args():
     args.output_width = 346
     args.output_height = 260
     args.cutoff_hz=15
-    args.batch_size=2
+    args.batch_size=16
     # DVS exposure
     exposure_mode, exposure_val, area_dimension = \
         v2e_check_dvs_exposure_args(args)
@@ -167,9 +167,9 @@ def set_vars(args, other_args, command_line):
             'leak_rate_hz>0 but sigma_thres==0, '
             'so all leak events will be synchronous')
     
-def tmp_npy(vid, emulator, source_frames_dir, vid_idx):
+def tmp_npy(vid, emulator, source_frames_dir, vid_idx, max_frames ):
     
-    num_frames = vid.srcNumFramesToBeProccessed
+    num_frames = 0
     inputHeight = None
     inputWidth = None
     inputChannels = None
@@ -238,47 +238,48 @@ def tmp_npy(vid, emulator, source_frames_dir, vid_idx):
         emulator.output_height = output_height
 
     video_frames = []
-    for inputFrameIndex in range(vid.srcNumFramesToBeProccessed):
-        # read frame
-        ret, inputVideoFrame = vid.cap.read()
-        num_frames+=1
-        if ret==False:
-            logger.warning(f'could not read frame {inputFrameIndex} from {vid.cap}')
-            continue
-        if inputVideoFrame is None or np.shape(inputVideoFrame) == ():
-            logger.warning(f'empty video frame number {inputFrameIndex} in {vid.cap}')
-            continue
-        if not ret or inputFrameIndex + vid.start_frame > vid.stop_frame:
-            break
+    for inputFrameIndex in range(max_frames):
+        if inputFrameIndex < vid.srcNumFramesToBeProccessed: 
+            # read frame
+            ret, inputVideoFrame = vid.cap.read()
+            num_frames+=1
+            if ret==False:
+                logger.warning(f'could not read frame {inputFrameIndex} from {vid.cap}')
+                continue
+            if inputVideoFrame is None or np.shape(inputVideoFrame) == ():
+                logger.warning(f'empty video frame number {inputFrameIndex} in {vid.cap}')
+                continue
+            if not ret or inputFrameIndex + vid.start_frame > vid.stop_frame:
+                break
 
-        if vid.args.crop is not None:
-            # crop the frame, indices are y,x, UL is 0,0
-            if c_l+(c_r if c_r is not None else 0)>=inputWidth:
-                logger.error(f'left {c_l}+ right crop {c_r} is larger than image width {inputWidth}')
-                v2e_quit(1)
-            if c_t+(c_b if c_b is not None else 0)>=inputHeight:
-                logger.error(f'top {c_t}+ bottom crop {c_b} is larger than image height {inputHeight}')
-                v2e_quit(1)
+            if vid.args.crop is not None:
+                # crop the frame, indices are y,x, UL is 0,0
+                if c_l+(c_r if c_r is not None else 0)>=inputWidth:
+                    logger.error(f'left {c_l}+ right crop {c_r} is larger than image width {inputWidth}')
+                    v2e_quit(1)
+                if c_t+(c_b if c_b is not None else 0)>=inputHeight:
+                    logger.error(f'top {c_t}+ bottom crop {c_b} is larger than image height {inputHeight}')
+                    v2e_quit(1)
 
-            inputVideoFrame= inputVideoFrame[c_t:c_b, c_l:c_r] # https://stackoverflow.com/questions/15589517/how-to-crop-an-image-in-opencv-using-python
+                inputVideoFrame= inputVideoFrame[c_t:c_b, c_l:c_r] # https://stackoverflow.com/questions/15589517/how-to-crop-an-image-in-opencv-using-python
 
-        if vid.output_height and vid.output_width and \
-                (inputHeight != vid.output_height or
-                    inputWidth != vid.output_width):
-            dim = (vid.output_width, vid.output_height)
-            (fx, fy) = (float(vid.output_width) / inputWidth,
-                        float(vid.output_height) / inputHeight)
-            inputVideoFrame = cv2.resize(
-                src=inputVideoFrame, dsize=dim, fx=fx, fy=fy,
-                interpolation=cv2.INTER_AREA)
-        if inputChannels == 3:  # color
-            if inputFrameIndex == 0:  # print info once
-                logger.info(
-                    '\nConverting input frames from RGB color to luma')
-            # TODO would break resize if input is gray frames
-            # convert RGB frame into luminance.
-            inputVideoFrame = cv2.cvtColor(
-                inputVideoFrame, cv2.COLOR_BGR2GRAY)  # much faster
+            if vid.output_height and vid.output_width and \
+                    (inputHeight != vid.output_height or
+                        inputWidth != vid.output_width):
+                dim = (vid.output_width, vid.output_height)
+                (fx, fy) = (float(vid.output_width) / inputWidth,
+                            float(vid.output_height) / inputHeight)
+                inputVideoFrame = cv2.resize(
+                    src=inputVideoFrame, dsize=dim, fx=fx, fy=fy,
+                    interpolation=cv2.INTER_AREA)
+            if inputChannels == 3:  # color
+                if inputFrameIndex == 0:  # print info once
+                    logger.info(
+                        '\nConverting input frames from RGB color to luma')
+                # TODO would break resize if input is gray frames
+                # convert RGB frame into luminance.
+                inputVideoFrame = cv2.cvtColor(
+                    inputVideoFrame, cv2.COLOR_BGR2GRAY)  # much faster
 
         # save frame into numpy records
         video_frames.append(inputVideoFrame)
@@ -288,6 +289,8 @@ def tmp_npy(vid, emulator, source_frames_dir, vid_idx):
     save_path = os.path.join( source_frames_dir,f"video_{str(vid_idx).zfill(4)}.h5")
     with h5py.File(save_path, 'w') as f:
         f.create_dataset('video', data=video_frames)
+    ## reload the file
+    
     vid.cap.release()
 
 def get_models(args, vids, exposure_mode, exposure_val, area_dimension, torch_device):
@@ -422,18 +425,18 @@ def event_sampling(vids_slowmo, vids, emulator, eventRenderer, interpTimes, args
                 events = np.append(events, newEvents, axis=0)
                 events = np.array(events)
                 
-        #         if i % args.batch_size == 0:
-        #             eventRenderer.render_events_to_frames(
-        #                 events, height=args.output_height,
-        #                 width=args.output_width,
-        #                 batch_size = len(vids))
-        #             events = np.zeros((0, 5), dtype=np.float32)
-        # # process leftover events
-        # print(f"time to generate all events within loop {time.time() - start}")
-        # if len(events) > 0 and not args.skip_video_output:
-        #     eventRenderer.render_events_to_frames(
-        #         events, height=args.output_height, width=args.output_width, batch_size = len(vids))
-    print(f"time to generate all remanant events {time.time() - start}")
+    #             if i % args.batch_size == 0:
+    #                 eventRenderer.render_events_to_frames(
+    #                     events, height=args.output_height,
+    #                     width=args.output_width,
+    #                     batch_size = len(vids))
+    #                 events = np.zeros((0, 5), dtype=np.float32)
+    #     # process leftover events
+    #     print(f"time to generate all events within loop {time.time() - start}")
+    #     if len(events) > 0 and not args.skip_video_output:
+    #         eventRenderer.render_events_to_frames(
+    #             events, height=args.output_height, width=args.output_width, batch_size = len(vids))
+    # print(f"time to generate all remanant events {time.time() - start}")
     
 class VideoInfos:
     def __init__(self, file_path, args):
@@ -591,8 +594,9 @@ def main(file_paths: str):
     emulator, eventRenderer, slomo, srcFrameIntervalS, slowdown_factor = get_models(args, vids, exposure_mode, exposure_val, area_dimension, torch_device)
     with TemporaryDirectory(dir="/home/martin.barry/projects/tmp/") as source_frames_dir:
         vid_idx = 0
+        max_frames = max([vid.srcNumFramesToBeProccessed for vid in vids])
         for vid in vids:
-            num_frames = tmp_npy(vid, emulator, source_frames_dir, vid_idx)
+            num_frames = tmp_npy(vid, emulator, source_frames_dir, vid_idx,max_frames)
                                             
             vid_idx += 1
             

@@ -21,6 +21,7 @@ from PIL import Image
 import logging
 import warnings
 from torch.utils.data import Dataset
+import torch.nn.functional as F
 warnings.filterwarnings(
     "ignore", category=UserWarning,
     module="torch.nn.functional")
@@ -36,16 +37,19 @@ class FramesListDataset(Dataset):
             frame_size (tuple): Desired frame size.
             transform (callable, optional): Optional transform to apply.
         """
-        print(vid_path)
-        with h5py.File(vid_path, 'r') as f:
-            self.images = f['video'][:]
-        if transform is not None:
-            self.images = transform(self.images)
-        
-        self.transform = transform
+        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
         self.origDim = ori_dim
         self.dim = (int(self.origDim[0] / 32) * 32,
                     int(self.origDim[1] / 32) * 32)
+        with h5py.File(vid_path, 'r') as f:
+            self.images =  f['video'][:]
+            self.images = F.interpolate(torch.from_numpy(self.images).float().unsqueeze(1).to(self.device), size=self.dim, mode='bilinear', align_corners=False)
+            self.images = self.images/255 - 0.48
+        # if transform is not None:
+        #     self.images = torch.stack([transform(frame) for frame in self.images])
+        #     print("transformed")
+        #     print(self.images.mean(), self.images.std())
+        #     print(self.images.shape)        
         
 
         #  self.origDim = array.shape[2], array.shape[1]
@@ -216,11 +220,11 @@ class SuperSloMo(object):
    
 
         frames = FramesListDataset(source_frame_paths, frame_size, transform=self.to_tensor)
+
         videoFramesloader = torch.utils.data.DataLoader(
             frames,
             batch_size=self.batch_size,
             shuffle=False,
-            pin_memory=True,  # Speeds up transferring data to GPU
 
         )
         return videoFramesloader, frames.dim, frames.origDim
@@ -254,8 +258,8 @@ class SuperSloMo(object):
         for param in interpolator.parameters():
             param.requires_grad = False
 
-        warper = model.backWarp(dim[0],
-                                dim[1],
+        warper = model.backWarp(dim[1],
+                                dim[0],
                                 self.device)
         warper = warper.to(self.device)
 
@@ -275,19 +279,14 @@ class SuperSloMo(object):
         ori_dims = []
         
         for vid_indx in range(len(self.vids)):
-            frame_size = (self.vids[vid_indx].output_width, self.vids[vid_indx].output_height)
+            frame_size = (self.vids[vid_indx].output_height, self.vids[vid_indx].output_width)
             path = os.path.join(videos_path,f"video_{str(vid_indx).zfill(4)}.h5")
             video_loader, dim, ori_dim = self.__load_data(path, frame_size)
             video_loaders.append(video_loader)
             ori_dims.append(ori_dim)
             
             idx += 1
-        max_frames = max([len(video_loader.dataset) for video_loader in video_loaders])
-        print(max_frames)
-        for video_loader in video_loaders:
-            print(video_loader.dataset.images.shape)
-            video_loader.dataset.images = torch.cat([video_loader.dataset.images, torch.zeros(max_frames - len(video_loader), *video_loader.dataset.images.shape[1:])])
-            print(video_loader.dataset.images.shape)
+
         return video_loaders, ori_dims, dim
     def process_videos_tensor(self, Ft_p, ori_dims, upsampling_factor):
         """
@@ -346,30 +345,23 @@ class SuperSloMo(object):
 
         with torch.no_grad():
             interpTimes=None
-            coubtu = 0
             import time
             start = time.time()
             for batch_data in  zip(*video_loaders):
-                print(f"loaded batch in {time.time() - start:.2f} seconds")
                 
                 I0_batch = torch.stack([data[0] for data in batch_data])
                 I1_batch = torch.stack([data[1] for data in batch_data])
-                print(I0_batch.shape)
-                print(f"loaded I0 in {time.time() - start:.2f} seconds")
-                if coubtu == 1:
-                    exit()
-                coubtu += 1
+                
+                
                 num_batch_frames = I0_batch.shape[1]  # batch size within each video
                 
                 ## put the two batch dim together
                 I0_batch_NET = I0_batch.view(-1, *I0_batch.shape[2:])
                 I1_batch_NET = I1_batch.view(-1, *I1_batch.shape[2:])
 
-
                 flow_out = self.flow_estimator(torch.cat((I0_batch_NET, I1_batch_NET), dim=1))
 
                 ## return to the original shape
-
 
                 F_0_1, F_1_0 = flow_out[:, :2, :, :], flow_out[:, 2:, :, :]
                 numOutputFramesThisBatch= self.upsampling_factor*num_batch_frames

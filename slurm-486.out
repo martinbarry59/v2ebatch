@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/home/martin.barry/projects/v2ebatch/v2ref.py", line 643, in <module>
+    main(batch)
+  File "/home/martin.barry/projects/v2ebatch/v2ref.py", line 604, in main
+    slow_mo_vids, interpTimes = slowmo_upsampling(args, slomo, source_frames_dir, interpFramesFolder, 
+  File "/home/martin.barry/projects/v2ebatch/v2ref.py", line 377, in slowmo_upsampling
+    slow_mo_vids, interpTimes, avgUpsamplingFactor = slomo.interpolate_batch(source_frames_dir, interpFramesFolder)
+  File "/home/martin.barry/projects/v2ebatch/v2ecore/slomo.py", line 333, in interpolate_batch
+    all_frames_slomo = torch.zeros((num_videos, len(video_loaders[1]) * self.upsampling_factor * self.batch_size, ori_dims[0][0], ori_dims[0][1]), device=self.device, dtype=torch.uint8)
+  File "/opt/conda/envs/v2e/lib/python3.10/site-packages/torch/utils/data/dataloader.py", line 539, in __len__
+    return len(self._index_sampler)
+  File "/opt/conda/envs/v2e/lib/python3.10/site-packages/torch/utils/data/sampler.py", line 357, in __len__
+    return (len(self.sampler) + self.batch_size - 1) // self.batch_size  # type: ignore[arg-type]
+  File "/opt/conda/envs/v2e/lib/python3.10/site-packages/torch/utils/data/sampler.py", line 129, in __len__
+    return len(self.data_source)
+  File "/home/martin.barry/projects/v2ebatch/v2ecore/slomo.py", line 52, in __len__
+    return len(self.files) - 1
+AttributeError: 'FramesListDataset' object has no attribute 'files'

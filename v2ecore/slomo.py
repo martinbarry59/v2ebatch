@@ -11,9 +11,7 @@ import torch
 import os
 import numpy as np
 import cv2
-import glob
-from tqdm import tqdm
-
+import h5py
 import torchvision.transforms as transforms
 from v2ecore.v2e_utils import all_images, group_videos_by_name
 from v2ecore.v2e_utils import video_writer, v2e_quit
@@ -21,7 +19,6 @@ import v2ecore.dataloader as dataloader
 import v2ecore.model as model
 from PIL import Image
 import logging
-import atexit
 import warnings
 from torch.utils.data import Dataset
 warnings.filterwarnings(
@@ -32,21 +29,37 @@ warnings.filterwarnings(
 logger = logging.getLogger(__name__)
 
 class FramesListDataset(Dataset):
-    def __init__(self, file_list, ori_dim, transform=None):
+    def __init__(self, vid_path, ori_dim, transform=None):
         """
         Args:
             file_list (list): List of .npy file paths.
             frame_size (tuple): Desired frame size.
             transform (callable, optional): Optional transform to apply.
         """
-        self.files = sorted(file_list)
+        print(vid_path)
+        with h5py.File(vid_path, 'r') as f:
+            self.images = f['video'][:]
+        if transform is not None:
+            self.images = transform(self.images)
+        
         self.transform = transform
         self.origDim = ori_dim
-        #  self.origDim = array.shape[2], array.shape[1]
         self.dim = (int(self.origDim[0] / 32) * 32,
                     int(self.origDim[1] / 32) * 32)
+        
+
+        #  self.origDim = array.shape[2], array.shape[1]
+        
     def __len__(self):
-        return len(self.files) - 1
+        return len(self.images) - 1
+    # def loading_image(self, file):
+    #     image = np.load(file)
+    #     image = Image.fromarray(image)
+    #     image = image.resize(self.dim, Image.Resampling.LANCZOS)
+    #     # Apply transformation if specified.
+    #     if self.transform is not None:
+    #         image = self.transform(image)
+    #     return image
     def __repr__(self):
 
         """Return printable representations of the class.
@@ -70,21 +83,8 @@ class FramesListDataset(Dataset):
                 index: int.
             @Return: List(Tensor, Tensor).
         """
-
-        sample = []
-
-        image_1 = np.load(self.files[index])
-        image_2 = np.load(self.files[index+1])
-        # Loop over for all frames corresponding to the `index`.
-        for image in [image_1, image_2]:
-            # Open image using pil.
-            image = Image.fromarray(image)
-            image = image.resize(self.dim, Image.Resampling.LANCZOS)
-            # Apply transformation if specified.
-            if self.transform is not None:
-                image = self.transform(image)
-            sample.append(image)
-        return sample
+        
+        return [self.images[index], self.images[index + 1]]
 class SuperSloMo(object):
     """Super SloMo class
         @author: Zhe He
@@ -213,12 +213,16 @@ class SuperSloMo(object):
         frames.origDim: original size.
         """
         #  frames = dataloader.Frames(images, transform=self.to_tensor)
+   
+
         frames = FramesListDataset(source_frame_paths, frame_size, transform=self.to_tensor)
-        
         videoFramesloader = torch.utils.data.DataLoader(
             frames,
             batch_size=self.batch_size,
-            shuffle=False)
+            shuffle=False,
+            pin_memory=True,  # Speeds up transferring data to GPU
+
+        )
         return videoFramesloader, frames.dim, frames.origDim
 
     def __model(self, dim):
@@ -265,17 +269,25 @@ class SuperSloMo(object):
         return flow_estimator, warper, interpolator
 
   
-    def set_video_loaders(self, grouped_videos_paths):
+    def set_video_loaders(self, videos_path):
         idx = 0
         video_loaders = []
         ori_dims = []
+        
         for vid_indx in range(len(self.vids)):
             frame_size = (self.vids[vid_indx].output_width, self.vids[vid_indx].output_height)
-            video_loader, dim, ori_dim = self.__load_data(grouped_videos_paths[vid_indx], frame_size)
+            path = os.path.join(videos_path,f"video_{str(vid_indx).zfill(4)}.h5")
+            video_loader, dim, ori_dim = self.__load_data(path, frame_size)
             video_loaders.append(video_loader)
             ori_dims.append(ori_dim)
             
             idx += 1
+        max_frames = max([len(video_loader.dataset) for video_loader in video_loaders])
+        print(max_frames)
+        for video_loader in video_loaders:
+            print(video_loader.dataset.images.shape)
+            video_loader.dataset.images = torch.cat([video_loader.dataset.images, torch.zeros(max_frames - len(video_loader), *video_loader.dataset.images.shape[1:])])
+            print(video_loader.dataset.images.shape)
         return video_loaders, ori_dims, dim
     def process_videos_tensor(self, Ft_p, ori_dims, upsampling_factor):
         """
@@ -317,13 +329,12 @@ class SuperSloMo(object):
         - output_folder: str, directory where interpolated frames will be saved.
         - frame_size: tuple (width, height)
         """
- 
-        videos_grouped = group_videos_by_name(source_frame_paths)
-        num_videos = len(videos_grouped)
-        video_loaders, ori_dims, dim = self.set_video_loaders(videos_grouped)
+        
+        # videos_grouped = group_videos_by_name(source_frame_paths)
         
 
-        
+        video_loaders, ori_dims, dim = self.set_video_loaders(source_frame_paths)
+        num_videos = len(video_loaders)
         
         if not self.model_loaded:
             self.flow_estimator, self.warper, self.interpolator = self.__model(dim)
@@ -331,13 +342,23 @@ class SuperSloMo(object):
         all_frames_slomo = torch.zeros((num_videos, len(video_loaders[1]) * self.upsampling_factor * self.batch_size, ori_dims[0][0], ori_dims[0][1]), device=self.device, dtype=torch.uint8)
         inputFrameCounter = 0
         outputFrameCounter = 0
+        
+
         with torch.no_grad():
             interpTimes=None
+            coubtu = 0
+            import time
+            start = time.time()
             for batch_data in  zip(*video_loaders):
+                print(f"loaded batch in {time.time() - start:.2f} seconds")
                 
-                I0_batch = torch.stack([data[0] for data in batch_data]).to(self.device)
-                I1_batch = torch.stack([data[1] for data in batch_data]).to(self.device)
-                
+                I0_batch = torch.stack([data[0] for data in batch_data])
+                I1_batch = torch.stack([data[1] for data in batch_data])
+                print(I0_batch.shape)
+                print(f"loaded I0 in {time.time() - start:.2f} seconds")
+                if coubtu == 1:
+                    exit()
+                coubtu += 1
                 num_batch_frames = I0_batch.shape[1]  # batch size within each video
                 
                 ## put the two batch dim together
@@ -404,8 +425,6 @@ class SuperSloMo(object):
                 outputFrameCounter += numOutputFramesThisBatch # batch_size-1 because we repeat frame1 as frame0
         idx = 0
         for vid in self.vids:
-            import h5py
-
             with h5py.File(vid.vid_slomo, "w") as f:
                 f.create_dataset("vids", data=all_frames_slomo[idx].cpu().detach().numpy(), compression="gzip")
 

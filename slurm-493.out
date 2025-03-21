@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "/home/martin.barry/projects/v2ebatch/v2ref.py", line 643, in <module>
+    main(batch)
+  File "/home/martin.barry/projects/v2ebatch/v2ref.py", line 604, in main
+    slow_mo_vids, interpTimes = slowmo_upsampling(args, slomo, source_frames_dir, interpFramesFolder, 
+  File "/home/martin.barry/projects/v2ebatch/v2ref.py", line 377, in slowmo_upsampling
+    slow_mo_vids, interpTimes, avgUpsamplingFactor = slomo.interpolate_batch(source_frames_dir, interpFramesFolder)
+  File "/home/martin.barry/projects/v2ebatch/v2ecore/slomo.py", line 329, in interpolate_batch
+    video_loaders, ori_dims, dim = self.set_video_loaders(source_frame_paths)
+  File "/home/martin.barry/projects/v2ebatch/v2ecore/slomo.py", line 279, in set_video_loaders
+    video_loader, dim, ori_dim = self.__load_data(path, frame_size)
+  File "/home/martin.barry/projects/v2ebatch/v2ecore/slomo.py", line 217, in __load_data
+    frames = FramesListDataset(source_frame_paths, frame_size, transform=self.to_tensor)
+  File "/home/martin.barry/projects/v2ebatch/v2ecore/slomo.py", line 42, in __init__
+    self.images = transform(self.images)
+  File "/opt/conda/envs/v2e/lib/python3.10/site-packages/torchvision/transforms/transforms.py", line 95, in __call__
+    img = t(img)
+  File "/opt/conda/envs/v2e/lib/python3.10/site-packages/torchvision/transforms/transforms.py", line 137, in __call__
+    return F.to_tensor(pic)
+  File "/opt/conda/envs/v2e/lib/python3.10/site-packages/torchvision/transforms/functional.py", line 142, in to_tensor
+    raise TypeError(f"pic should be PIL Image or ndarray. Got {type(pic)}")
+TypeError: pic should be PIL Image or ndarray. Got <class 'h5py._hl.dataset.Dataset'>

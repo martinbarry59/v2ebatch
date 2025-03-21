@@ -1,0 +1,12 @@
+/opt/conda/envs/v2e/lib/python3.10/site-packages/torch/utils/data/dataloader.py:624: UserWarning: This DataLoader will create 8 worker processes in total. Our suggested max number of worker in current system is 4, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(
+Traceback (most recent call last):
+  File "/home/martin.barry/projects/v2ebatch/v2ref.py", line 643, in <module>
+    main(batch)
+  File "/home/martin.barry/projects/v2ebatch/v2ref.py", line 604, in main
+    slow_mo_vids, interpTimes = slowmo_upsampling(args, slomo, source_frames_dir, interpFramesFolder, 
+  File "/home/martin.barry/projects/v2ebatch/v2ref.py", line 377, in slowmo_upsampling
+    slow_mo_vids, interpTimes, avgUpsamplingFactor = slomo.interpolate_batch(source_frames_dir, interpFramesFolder)
+  File "/home/martin.barry/projects/v2ebatch/v2ecore/slomo.py", line 353, in interpolate_batch
+    I0_batch = torch.stack([data[0] for data in batch_data])
+RuntimeError: stack expects each tensor to be equal size, but got [2, 100, 260] at entry 0 and [2, 85, 260] at entry 1

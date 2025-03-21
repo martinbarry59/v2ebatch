@@ -33,6 +33,8 @@ from v2ecore.slomo import SuperSloMo
 from v2ecore.emulator import EventEmulator
 from v2ecore.v2e_utils import mat_to_mp4
 import sys
+import h5py
+
 ## get current directory
 path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(f'{path}/v2ecore/')
@@ -105,7 +107,7 @@ def set_args():
     args.output_width = 346
     args.output_height = 260
     args.cutoff_hz=15
-    args.batch_size=4
+    args.batch_size=2
     # DVS exposure
     exposure_mode, exposure_val, area_dimension = \
         v2e_check_dvs_exposure_args(args)
@@ -235,7 +237,7 @@ def tmp_npy(vid, emulator, source_frames_dir, vid_idx):
         emulator.output_width = output_width
         emulator.output_height = output_height
 
-    
+    video_frames = []
     for inputFrameIndex in range(vid.srcNumFramesToBeProccessed):
         # read frame
         ret, inputVideoFrame = vid.cap.read()
@@ -279,10 +281,13 @@ def tmp_npy(vid, emulator, source_frames_dir, vid_idx):
                 inputVideoFrame, cv2.COLOR_BGR2GRAY)  # much faster
 
         # save frame into numpy records
-        save_path = os.path.join(
-            source_frames_dir,f"video_{str(vid_idx).zfill(4)}"+"_"+ str(inputFrameIndex).zfill(8) + ".npy")
-        np.save(save_path, inputVideoFrame)
+        video_frames.append(inputVideoFrame)
+        
         # print("Writing source frame {}".format(save_path), end="\r")
+    video_frames = np.stack(video_frames, axis=0)
+    save_path = os.path.join( source_frames_dir,f"video_{str(vid_idx).zfill(4)}.h5")
+    with h5py.File(save_path, 'w') as f:
+        f.create_dataset('video', data=video_frames)
     vid.cap.release()
 
 def get_models(args, vids, exposure_mode, exposure_val, area_dimension, torch_device):
@@ -352,13 +357,14 @@ def get_models(args, vids, exposure_mode, exposure_val, area_dimension, torch_de
                 f'leak and shot noise rates')
             emulator.set_dvs_params(args.dvs_params)
 
-        eventRenderer = EventRenderer(
-            vids=vids,
-            dvs_vid=args.dvs_vid, preview=not args.no_preview, full_scale_count=args.dvs_vid_full_scale,
-            exposure_mode=exposure_mode,
-            exposure_value=exposure_val,
-            area_dimension=area_dimension,
-            avi_frame_rate=args.avi_frame_rate)
+        # eventRenderer = EventRenderer(
+        #     vids=vids,
+        #     dvs_vid=args.dvs_vid, preview=not args.no_preview, full_scale_count=args.dvs_vid_full_scale,
+        #     exposure_mode=exposure_mode,
+        #     exposure_value=exposure_val,
+        #     area_dimension=area_dimension,
+        #     avi_frame_rate=args.avi_frame_rate)
+        eventRenderer = None
     else:
         emulator, eventRenderer = None, None
     return emulator, eventRenderer, slomo, srcFrameIntervalS, slowdown_factor
@@ -583,7 +589,7 @@ def main(file_paths: str):
     
     
     emulator, eventRenderer, slomo, srcFrameIntervalS, slowdown_factor = get_models(args, vids, exposure_mode, exposure_val, area_dimension, torch_device)
-    with TemporaryDirectory() as source_frames_dir:
+    with TemporaryDirectory(dir="/home/martin.barry/projects/tmp/") as source_frames_dir:
         vid_idx = 0
         for vid in vids:
             num_frames = tmp_npy(vid, emulator, source_frames_dir, vid_idx)
@@ -592,7 +598,7 @@ def main(file_paths: str):
             
         print(f"time to extract frames {time.time() - start}")
         
-        with TemporaryDirectory() as interpFramesFolder:
+        with TemporaryDirectory(dir="/home/martin.barry/projects/tmp/") as interpFramesFolder:
             interpTimes = None
             # make input to slomo
             slow_mo_vids, interpTimes = slowmo_upsampling(args, slomo, source_frames_dir, interpFramesFolder, 
@@ -618,11 +624,11 @@ if __name__ == "__main__":
     import os
 
     data_path = "/home/martin.barry/projects/surreal/" ## change to your data path
-    data_path = "/home/martin-barry/Downloads/surreal/"
+    # data_path = "/home/martin-barry/Downloads/surreal/"
 
     files = glob.glob(os.path.join(data_path, "**/*.mp4"), recursive = True)
     files = [file for file in files if not "depth" in file]
-    batch_size = 2
+    batch_size = 20
     print(f"processing {len(files)} files")
     
     start = time.time()

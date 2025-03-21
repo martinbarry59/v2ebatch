@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/home/martin.barry/projects/v2ebatch/v2ref.py", line 643, in <module>
+    main(batch)
+  File "/home/martin.barry/projects/v2ebatch/v2ref.py", line 604, in main
+    slow_mo_vids, interpTimes = slowmo_upsampling(args, slomo, source_frames_dir, interpFramesFolder, 
+  File "/home/martin.barry/projects/v2ebatch/v2ref.py", line 377, in slowmo_upsampling
+    slow_mo_vids, interpTimes, avgUpsamplingFactor = slomo.interpolate_batch(source_frames_dir, interpFramesFolder)
+  File "/home/martin.barry/projects/v2ebatch/v2ecore/slomo.py", line 355, in interpolate_batch
+    I0_batch = torch.stack([data[0] for data in batch_data])
+RuntimeError: stack expects each tensor to be equal size, but got [2, 100, 260] at entry 0 and [2, 85, 260] at entry 1

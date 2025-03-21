@@ -1,15 +1,88 @@
 torch device is cuda
 processing 68036 files
 0
-processing 3 files
+processing 20 files
 Processing /home/martin.barry/projects/surreal/train/run1/ung_91_38/ung_91_38_c0001.mp4
 Processing /home/martin.barry/projects/surreal/train/run1/ung_91_38/ung_91_38_c0002.mp4
 Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0003.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0005.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0018.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0008.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0009.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0007.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0024.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0014.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0020.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0016.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0002.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0027.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0001.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0022.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0026.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0015.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0010.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0030.mp4
 starting main
-time to extract frames 3.5340323448181152
-saving video
-saved /home/martin.barry/projects/processed_surreal/train/run1/ung_91_38/ung_91_38_c0001vid_slomo.npy
-saved /home/martin.barry/projects/processed_surreal/train/run1/ung_91_38/ung_91_38_c0002vid_slomo.npy
-saved /home/martin.barry/projects/processed_surreal/train/run1/ung_41_10/ung_41_10_c0003vid_slomo.npy
-Time taken to save video: 4.419094800949097
-time to interpolate frames 377.2879796028137
+time to extract frames 3.773258924484253
+/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0000.h5
+/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0001.h5
+/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0002.h5
+/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0003.h5
+/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0004.h5
+/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0005.h5
+/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0006.h5
+/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0007.h5
+/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0008.h5
+/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0009.h5
+/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0010.h5
+/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0011.h5
+/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0012.h5
+/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0013.h5
+/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0014.h5
+/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0015.h5
+/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0016.h5
+/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0017.h5
+/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0018.h5
+/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0019.h5
+345
+torch.Size([346, 100, 260])
+torch.Size([518, 100, 260])
+torch.Size([346, 85, 260])
+torch.Size([518, 85, 260])
+torch.Size([346, 100, 260])
+torch.Size([518, 100, 260])
+torch.Size([346, 100, 260])
+torch.Size([518, 100, 260])
+torch.Size([346, 100, 260])
+torch.Size([518, 100, 260])
+torch.Size([346, 100, 260])
+torch.Size([518, 100, 260])
+torch.Size([346, 100, 260])
+torch.Size([518, 100, 260])
+torch.Size([346, 100, 260])
+torch.Size([518, 100, 260])
+torch.Size([346, 100, 260])
+torch.Size([518, 100, 260])
+torch.Size([346, 100, 260])
+torch.Size([518, 100, 260])
+torch.Size([346, 100, 260])
+torch.Size([518, 100, 260])
+torch.Size([346, 100, 260])
+torch.Size([518, 100, 260])
+torch.Size([346, 100, 260])
+torch.Size([518, 100, 260])
+torch.Size([346, 100, 260])
+torch.Size([518, 100, 260])
+torch.Size([346, 100, 260])
+torch.Size([518, 100, 260])
+torch.Size([346, 100, 260])
+torch.Size([518, 100, 260])
+torch.Size([346, 100, 260])
+torch.Size([518, 100, 260])
+torch.Size([346, 100, 260])
+torch.Size([518, 100, 260])
+torch.Size([346, 100, 260])
+torch.Size([518, 100, 260])
+torch.Size([346, 100, 260])
+torch.Size([518, 100, 260])
+loaded batch in 1.33 seconds

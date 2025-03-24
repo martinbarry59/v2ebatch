@@ -13,7 +13,7 @@ import numpy as np
 import cv2
 import h5py
 import torchvision.transforms as transforms
-from functools import partial
+from v2ecore.v2e_utils import save_array_to_h5
 import v2ecore.model as model
 import logging
 from multiprocessing import Pool
@@ -26,10 +26,7 @@ warnings.filterwarnings(
 # https://github.com/fastai/fastai/issues/2370
 
 logger = logging.getLogger(__name__)
-def save_array_to_h5(arg):
-    path, array = arg
-    with h5py.File(path, "w") as f:
-        f.create_dataset("vids", data=array, compression="gzip")
+
 class FramesListDataset(Dataset):
     def __init__(self, vid_path, ori_dim, transform=None):
         """

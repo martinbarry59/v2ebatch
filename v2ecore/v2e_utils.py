@@ -14,7 +14,7 @@ from numba import njit
 from engineering_notation import EngNumber as eng
 from pathlib import Path
 import pandas as pd
-
+import h5py
 # adjust for different sensor than DAVIS346
 DVS_WIDTH, DVS_HEIGHT = 346, 260
 
@@ -354,7 +354,10 @@ def all_images(data_path, idx):
         # /how-to-use-directory-separator-in-both-linux-and-windows-in-python
         return images_sorted
 
-
+def save_array_to_h5(arg):
+    path, array = arg
+    with h5py.File(path, "w") as f:
+        f.create_dataset("vids", data=array, compression="gzip")
 def read_image(path: str) -> np.ndarray:
     """Read image and returns it as grayscale np.ndarray float scaled 0-255.
 

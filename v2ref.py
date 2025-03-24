@@ -20,6 +20,7 @@ import os
 from tempfile import TemporaryDirectory
 import json
 import torch
+from v2ecore.v2e_utils import save_array_to_h5
 from v2ecore.v2e_utils import read_image, \
     check_lowpass, v2e_quit, group_videos_by_name
 from v2ecore.v2e_utils import set_output_dimension
@@ -35,6 +36,7 @@ from v2ecore.v2e_utils import mat_to_mp4
 import sys
 import h5py
 import tqdm 
+from multiprocessing import Pool
 ## get current directory
 path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(f'{path}/v2ecore/')
@@ -71,7 +73,18 @@ if torch_device=='cpu':
                    'to generate the correct conda install command to enable GPU-accelerated CUDA.')
 print(f'torch device is {torch_device}')
 # may only apply to windows
-
+def test_file_path(file_path: str, processed_files) -> str:
+    output_folder = file_path.split(".mp4")[0]
+    output_folder = output_folder.replace("surreal", "processed_surreal")
+    if "_depth" in file_path:
+        ## remove the _depth from the file name
+        output_folder = file_path.split("_depth")[0]
+    output_file = output_folder + "/dvs.h5"
+    # print(processed_files)
+    # print()
+    # print(output_file)
+    # exit()
+    return output_file not in processed_files and "_depth" not in file_path
 def get_args():
     """ proceses input arguments
     :returns: (args_namespace,other_args,command_line) """
@@ -330,7 +343,6 @@ def get_models(args, vids, exposure_mode, exposure_val, area_dimension, torch_de
 
 
     if "depth" not in vids[0].file_path:
-        print("signal noise", args.label_signal_noise)
 
         emulator = EventEmulator(
             vids=vids,
@@ -426,10 +438,16 @@ def event_sampling(vids_slowmo, vids, emulator, eventRenderer, interpTimes, args
                 #         batch_size = len(vids))
                 #     events = np.zeros((0, 5), dtype=np.float32)
         # process leftover events
-        for vid_idx in range(len(emulator.vids)): 
-            if emulator.vids[vid_idx].dvs_aedat4 is not None:
-                special_events = events[events[:,-1]==vid_idx]
-                emulator.vids[vid_idx].dvs_aedat4.appendEvents(special_events, signnoise_label=None)
+        to_save = events
+        save_args = []
+        for idx, vid in enumerate(emulator.vids):
+            path = vid.dvs_npy  # a simple string path
+            array = events[to_save[:,-1]==idx]
+            save_args.append((path, array))
+
+        with Pool(processes=16) as pool:
+            pool.map(save_array_to_h5, save_args)
+        
         # if len(events) > 0 and not args.skip_video_output:
         #     eventRenderer.render_events_to_frames(
         #         events, height=args.output_height, width=args.output_width, batch_size = len(vids))
@@ -445,7 +463,7 @@ class VideoInfos:
         self.processed_folder = self.output_folder.replace("surreal", "processed_surreal")
         if "_depth" not in file_path:
             
-            self.dvs_aedat4 =  self.processed_folder + '/dvs.aedat4'
+            self.dvs_npy =  self.processed_folder + '/dvs.h5'
             self.video_dvs = self.processed_folder + '/dvs.mp4'
             self.dvs_times = self.processed_folder + '/dvs_frames_times.txt'
         self.video_output_file = None
@@ -570,8 +588,6 @@ class VideoInfos:
         with open(os.path.join(self.output_folder, "time.json"), 'w') as f:
             json.dump(dict_time, f)
     def cleanup(self):
-        if self.dvs_aedat4 is not None and type(self.dvs_aedat4) != str:
-            self.dvs_aedat4.close()
         if self.cap is not None:
             self.cap.release()
         if self.video_output_file is not None and type(self.video_output_file) != str:
@@ -588,7 +604,8 @@ def main(file_paths: str):
     
     
     emulator, eventRenderer, slomo, srcFrameIntervalS, slowdown_factor = get_models(args, vids, exposure_mode, exposure_val, area_dimension, torch_device)
-    with TemporaryDirectory(dir="/home/martin.barry/projects/tmp/") as source_frames_dir:
+    tmp_path = "/home/martin.barry/projects/tmp/"
+    with TemporaryDirectory(dir = tmp_path) as source_frames_dir:
         vid_idx = 0
         max_frames = max([vid.srcNumFramesToBeProccessed for vid in vids])
         for vid in vids:
@@ -597,7 +614,7 @@ def main(file_paths: str):
             vid_idx += 1
             
         
-        with TemporaryDirectory(dir="/home/martin.barry/projects/tmp/") as interpFramesFolder:
+        with TemporaryDirectory(dir = tmp_path) as interpFramesFolder:
             interpTimes = None
             # make input to slomo
             slow_mo_vids, interpTimes = slowmo_upsampling(args, slomo, source_frames_dir, interpFramesFolder, 
@@ -622,13 +639,13 @@ if __name__ == "__main__":
 
     data_path = "/home/martin.barry/projects/surreal/" ## change to your data path
     # data_path = "/home/martin-barry/Downloads/surreal/"
-
+    processed_files = glob.glob(os.path.join(data_path.replace("surreal", "processed_surreal"), "**/*.h5"), recursive = True)
     files = glob.glob(os.path.join(data_path, "**/*.mp4"), recursive = True)
-    files = [file for file in files if not "depth" in file]
+    files = [file for file in files if test_file_path(file, processed_files)]
     ## shuffling the files
-    np.random.shuffle(files)
+    # np.random.shuffle(files)
 
-    batch_size = 20
+    batch_size = 2
     
     start = time.time()
     elapsed = 0
@@ -645,5 +662,4 @@ if __name__ == "__main__":
         elapsed += end - start
         estimated = (end - start) * (len(files) - i - batch_size)
         start = end
-
     v2e_quit()

@@ -297,14 +297,14 @@ class EventEmulator(object):
         if self.scidvs:
             logger.info('Modeling potential SCIDVS pixel with nonlinear CR highpass amplified log intensity')
 
-        try:
-            for vid in self.vids:
-                vid.dvs_aedat4 = AEDat4Output(
-                    vid.dvs_aedat4)
+        # try:
+        #     for vid in self.vids:
+        #         vid.dvs_aedat4 = AEDat4Output(
+        #             vid.dvs_aedat4)
             
-        except Exception as e:
-            logger.error(f'Output file exception "{e}" (maybe you need to specify a supported DVS camera type?)')
-            raise e
+        # except Exception as e:
+        #     logger.error(f'Output file exception "{e}" (maybe you need to specify a supported DVS camera type?)')
+        #     raise e
 
         self.screen_width = 1600
         self.screen_height = 1200

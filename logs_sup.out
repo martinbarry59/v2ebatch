@@ -1,88 +1,733 @@
 torch device is cuda
-processing 68036 files
-0
-processing 20 files
-Processing /home/martin.barry/projects/surreal/train/run1/ung_91_38/ung_91_38_c0001.mp4
-Processing /home/martin.barry/projects/surreal/train/run1/ung_91_38/ung_91_38_c0002.mp4
-Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0003.mp4
-Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0005.mp4
-Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0018.mp4
-Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0008.mp4
-Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0009.mp4
-Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0007.mp4
-Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0024.mp4
-Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0014.mp4
-Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0020.mp4
-Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0016.mp4
-Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0002.mp4
-Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0027.mp4
-Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0001.mp4
-Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0022.mp4
-Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0026.mp4
-Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0015.mp4
-Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0010.mp4
-Processing /home/martin.barry/projects/surreal/train/run1/ung_41_10/ung_41_10_c0030.mp4
-starting main
-time to extract frames 3.773258924484253
-/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0000.h5
-/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0001.h5
-/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0002.h5
-/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0003.h5
-/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0004.h5
-/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0005.h5
-/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0006.h5
-/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0007.h5
-/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0008.h5
-/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0009.h5
-/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0010.h5
-/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0011.h5
-/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0012.h5
-/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0013.h5
-/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0014.h5
-/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0015.h5
-/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0016.h5
-/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0017.h5
-/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0018.h5
-/home/martin.barry/projects/tmp/tmpwj3pg5wi/video_0019.h5
-345
-torch.Size([346, 100, 260])
-torch.Size([518, 100, 260])
-torch.Size([346, 85, 260])
-torch.Size([518, 85, 260])
-torch.Size([346, 100, 260])
-torch.Size([518, 100, 260])
-torch.Size([346, 100, 260])
-torch.Size([518, 100, 260])
-torch.Size([346, 100, 260])
-torch.Size([518, 100, 260])
-torch.Size([346, 100, 260])
-torch.Size([518, 100, 260])
-torch.Size([346, 100, 260])
-torch.Size([518, 100, 260])
-torch.Size([346, 100, 260])
-torch.Size([518, 100, 260])
-torch.Size([346, 100, 260])
-torch.Size([518, 100, 260])
-torch.Size([346, 100, 260])
-torch.Size([518, 100, 260])
-torch.Size([346, 100, 260])
-torch.Size([518, 100, 260])
-torch.Size([346, 100, 260])
-torch.Size([518, 100, 260])
-torch.Size([346, 100, 260])
-torch.Size([518, 100, 260])
-torch.Size([346, 100, 260])
-torch.Size([518, 100, 260])
-torch.Size([346, 100, 260])
-torch.Size([518, 100, 260])
-torch.Size([346, 100, 260])
-torch.Size([518, 100, 260])
-torch.Size([346, 100, 260])
-torch.Size([518, 100, 260])
-torch.Size([346, 100, 260])
-torch.Size([518, 100, 260])
-torch.Size([346, 100, 260])
-torch.Size([518, 100, 260])
-torch.Size([346, 100, 260])
-torch.Size([518, 100, 260])
-loaded batch in 1.33 seconds
+Processing /home/martin.barry/projects/surreal/train/run1/ung_91_19/ung_91_19_c0011.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_91_19/ung_91_19_c0011_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_114_08/ung_114_08_c0007.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_114_08/ung_114_08_c0007_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_83_64/ung_83_64_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_83_64/ung_83_64_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/143_27/143_27_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/143_27/143_27_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/106_33/106_33_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/106_33/106_33_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_105_34/ung_105_34_c0011.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_105_34/ung_105_34_c0011_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_86_01/ung_86_01_c0008.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_86_01/ung_86_01_c0008_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/15_09/15_09_c0017.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/15_09/15_09_c0017_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/131_02/131_02_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/131_02/131_02_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/137_26/137_26_c0007.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/137_26/137_26_c0007_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_84_20/ung_84_20_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_84_20/ung_84_20_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/144_34/144_34_c0012.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/144_34/144_34_c0012_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/73_09/73_09_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/73_09/73_09_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/137_33/137_33_c0012.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/137_33/137_33_c0012_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_136_07/ung_136_07_c0004.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_136_07/ung_136_07_c0004_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/89_01/89_01_c0014.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/89_01/89_01_c0014_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/15_09/15_09_c0026.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/15_09/15_09_c0026_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/105_52/105_52_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/105_52/105_52_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/28_09/28_09_c0011.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/28_09/28_09_c0011_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_56_08/ung_56_08_c0025.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_56_08/ung_56_08_c0025_depth.mp4
+signal noise False
+Time taken for one batch: 0.04140782356262207
+Time taken for one batch: 6.749268293380737
+Time taken for one batch: 12.367814540863037
+Time taken for one batch: 17.98923087120056
+Time taken for one batch: 23.616397619247437
+Time taken for one batch: 29.2769615650177
+Time taken for one batch: 34.929539918899536
+time taken after saving: 51.27716827392578
+Time taken for one batch: 0.0020904541015625
+Time taken for one batch: 5.580789804458618
+Time taken for one batch: 11.175366163253784
+Time taken for one batch: 16.772906064987183
+Time taken for one batch: 22.37776470184326
+Time taken for one batch: 27.98562264442444
+Time taken for one batch: 33.59799528121948
+time taken after saving: 40.87180137634277
+Processing /home/martin.barry/projects/surreal/train/run1/ung_82_08/ung_82_08_c0011.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_82_08/ung_82_08_c0011_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/ung_138_27/ung_138_27_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/ung_138_27/ung_138_27_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/80_31/80_31_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/80_31/80_31_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_86_02/ung_86_02_c0007.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_86_02/ung_86_02_c0007_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/05_02/05_02_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/05_02/05_02_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/132_49/132_49_c0007.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/132_49/132_49_c0007_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_86_02/ung_86_02_c0028.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_86_02/ung_86_02_c0028_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/62_06/62_06_c0007.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/62_06/62_06_c0007_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_144_17/ung_144_17_c0004.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_144_17/ung_144_17_c0004_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/36_25/36_25_c0018.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/36_25/36_25_c0018_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/55_23/55_23_c0027.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/55_23/55_23_c0027_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/40_08/40_08_c0012.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/40_08/40_08_c0012_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_135_04/ung_135_04_c0006.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_135_04/ung_135_04_c0006_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/55_28/55_28_c0021.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/55_28/55_28_c0021_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/15_14/15_14_c0036.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/15_14/15_14_c0036_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_132_41/ung_132_41_c0015.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_132_41/ung_132_41_c0015_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/54_26/54_26_c0014.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/54_26/54_26_c0014_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_144_18/ung_144_18_c0024.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_144_18/ung_144_18_c0024_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_105_20/ung_105_20_c0008.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_105_20/ung_105_20_c0008_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run0/ung_104_52/ung_104_52_c0008.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run0/ung_104_52/ung_104_52_c0008_depth.mp4
+signal noise False
+Time taken for one batch: 0.016080141067504883
+Time taken for one batch: 5.637975454330444
+Time taken for one batch: 11.351601362228394
+Time taken for one batch: 17.06526470184326
+Time taken for one batch: 22.72101902961731
+Time taken for one batch: 28.405229330062866
+Time taken for one batch: 34.08090782165527
+time taken after saving: 57.058857679367065
+Time taken for one batch: 0.0020766258239746094
+Time taken for one batch: 5.581659317016602
+Time taken for one batch: 11.17396879196167
+Time taken for one batch: 16.77580428123474
+Time taken for one batch: 22.37994933128357
+Time taken for one batch: 27.980632066726685
+Time taken for one batch: 33.58974742889404
+time taken after saving: 41.24262881278992
+Processing /home/martin.barry/projects/surreal/train/run1/54_21/54_21_c0043.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/54_21/54_21_c0043_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_126_03/ung_126_03_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_126_03/ung_126_03_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/55_08/55_08_c0010.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/55_08/55_08_c0010_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/105_03/105_03_c0006.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/105_03/105_03_c0006_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/32_06/32_06_c0018.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/32_06/32_06_c0018_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/01_02/01_02_c0030.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/01_02/01_02_c0030_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/15_02/15_02_c0137.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/15_02/15_02_c0137_depth.mp4
+Processing /home/martin.barry/projects/surreal/val/run1/09_12/09_12_c0008.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/val/run1/09_12/09_12_c0008_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/144_33/144_33_c0018.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/144_33/144_33_c0018_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/15_05/15_05_c0051.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/15_05/15_05_c0051_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/79_95/79_95_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/79_95/79_95_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/55_06/55_06_c0007.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/55_06/55_06_c0007_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run2/ung_104_35/ung_104_35_c0003.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run2/ung_104_35/ung_104_35_c0003_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_74_18/ung_74_18_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_74_18/ung_74_18_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/79_90/79_90_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/79_90/79_90_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_94_02/ung_94_02_c0005.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_94_02/ung_94_02_c0005_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/55_26/55_26_c0004.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/55_26/55_26_c0004_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_74_13/ung_74_13_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_74_13/ung_74_13_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/137_01/137_01_c0007.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/137_01/137_01_c0007_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/28_16/28_16_c0034.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/28_16/28_16_c0034_depth.mp4
+signal noise False
+Time taken for one batch: 0.004273414611816406
+Time taken for one batch: 5.687104940414429
+Time taken for one batch: 11.397094964981079
+Time taken for one batch: 17.057697772979736
+Time taken for one batch: 22.742507934570312
+Time taken for one batch: 28.407055377960205
+Time taken for one batch: 34.14138627052307
+time taken after saving: 54.41845703125
+Time taken for one batch: 0.002111673355102539
+Time taken for one batch: 5.585525274276733
+Time taken for one batch: 11.176959037780762
+Time taken for one batch: 16.77597665786743
+Time taken for one batch: 22.378926038742065
+Time taken for one batch: 27.98706817626953
+Time taken for one batch: 33.59953498840332
+time taken after saving: 41.529135942459106
+Processing /home/martin.barry/projects/surreal/train/run1/ung_56_08/ung_56_08_c0029.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_56_08/ung_56_08_c0029_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_86_12/ung_86_12_c0017.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_86_12/ung_86_12_c0017_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/40_10/40_10_c0015.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/40_10/40_10_c0015_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/80_45/80_45_c0004.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/80_45/80_45_c0004_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_74_13/ung_74_13_c0016.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_74_13/ung_74_13_c0016_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_132_41/ung_132_41_c0005.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_132_41/ung_132_41_c0005_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_91_14/ung_91_14_c0012.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_91_14/ung_91_14_c0012_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_86_03/ung_86_03_c0057.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_86_03/ung_86_03_c0057_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_91_24/ung_91_24_c0013.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_91_24/ung_91_24_c0013_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/144_18/144_18_c0015.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/144_18/144_18_c0015_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/32_12/32_12_c0037.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/32_12/32_12_c0037_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/132_14/132_14_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/132_14/132_14_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_73_03/ung_73_03_c0006.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_73_03/ung_73_03_c0006_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_111_08/ung_111_08_c0004.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_111_08/ung_111_08_c0004_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/01_02/01_02_c0010.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/01_02/01_02_c0010_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/36_12/36_12_c0020.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/36_12/36_12_c0020_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_105_34/ung_105_34_c0007.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_105_34/ung_105_34_c0007_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/55_06/55_06_c0018.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/55_06/55_06_c0018_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/79_88/79_88_c0003.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/79_88/79_88_c0003_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/36_32/36_32_c0024.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/36_32/36_32_c0024_depth.mp4
+signal noise False
+Time taken for one batch: 0.020331859588623047
+Time taken for one batch: 5.699383020401001
+Time taken for one batch: 11.364744901657104
+Time taken for one batch: 17.041269779205322
+Time taken for one batch: 22.745684146881104
+Time taken for one batch: 28.42916250228882
+Time taken for one batch: 34.12050676345825
+time taken after saving: 60.01315402984619
+Time taken for one batch: 0.0021209716796875
+Time taken for one batch: 5.579598903656006
+Time taken for one batch: 11.173917293548584
+Time taken for one batch: 16.774179935455322
+Time taken for one batch: 22.37651515007019
+Time taken for one batch: 27.9827983379364
+Time taken for one batch: 33.596025466918945
+time taken after saving: 41.32106423377991
+Processing /home/martin.barry/projects/surreal/train/run2/ung_132_41/ung_132_41_c0019.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_132_41/ung_132_41_c0019_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run0/36_10/36_10_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run0/36_10/36_10_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_111_31/ung_111_31_c0013.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_111_31/ung_111_31_c0013_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_113_28/ung_113_28_c0017.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_113_28/ung_113_28_c0017_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_111_13/ung_111_13_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_111_13/ung_111_13_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run0/ung_138_36/ung_138_36_c0004.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run0/ung_138_36/ung_138_36_c0004_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_126_03/ung_126_03_c0014.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_126_03/ung_126_03_c0014_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/137_24/137_24_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/137_24/137_24_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/111_36/111_36_c0006.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/111_36/111_36_c0006_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_142_18/ung_142_18_c0019.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_142_18/ung_142_18_c0019_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/132_53/132_53_c0006.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/132_53/132_53_c0006_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/36_35/36_35_c0015.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/36_35/36_35_c0015_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/132_56/132_56_c0043.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/132_56/132_56_c0043_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_113_28/ung_113_28_c0011.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_113_28/ung_113_28_c0011_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run0/40_12/40_12_c0039.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run0/40_12/40_12_c0039_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/55_03/55_03_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/55_03/55_03_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/132_15/132_15_c0023.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/132_15/132_15_c0023_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_86_02/ung_86_02_c0083.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_86_02/ung_86_02_c0083_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_105_14/ung_105_14_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_105_14/ung_105_14_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/105_01/105_01_c0006.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/105_01/105_01_c0006_depth.mp4
+signal noise False
+Time taken for one batch: 0.003809690475463867
+Time taken for one batch: 5.628227710723877
+Time taken for one batch: 11.259356498718262
+Time taken for one batch: 16.898804426193237
+Time taken for one batch: 22.530381202697754
+Time taken for one batch: 28.15778422355652
+Time taken for one batch: 33.81737160682678
+time taken after saving: 62.1122100353241
+Time taken for one batch: 0.0021004676818847656
+Time taken for one batch: 5.579073667526245
+Time taken for one batch: 11.17247223854065
+Time taken for one batch: 16.776708364486694
+Time taken for one batch: 22.386078119277954
+Time taken for one batch: 27.9950213432312
+Time taken for one batch: 33.60813903808594
+time taken after saving: 41.5112566947937
+Processing /home/martin.barry/projects/surreal/train/run2/144_33/144_33_c0017.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/144_33/144_33_c0017_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/40_03/40_03_c0029.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/40_03/40_03_c0029_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/144_12/144_12_c0024.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/144_12/144_12_c0024_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_137_23/ung_137_23_c0011.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_137_23/ung_137_23_c0011_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/15_04/15_04_c0131.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/15_04/15_04_c0131_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/79_32/79_32_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/79_32/79_32_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/ung_120_20/ung_120_20_c0082.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/ung_120_20/ung_120_20_c0082_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/01_11/01_11_c0029.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/01_11/01_11_c0029_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_91_20/ung_91_20_c0005.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_91_20/ung_91_20_c0005_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/137_35/137_35_c0007.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/137_35/137_35_c0007_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_139_33/ung_139_33_c0007.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_139_33/ung_139_33_c0007_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/28_09/28_09_c0005.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/28_09/28_09_c0005_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_105_08/ung_105_08_c0003.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_105_08/ung_105_08_c0003_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_126_12/ung_126_12_c0004.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_126_12/ung_126_12_c0004_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run0/ung_61_01/ung_61_01_c0008.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run0/ung_61_01/ung_61_01_c0008_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_94_14/ung_94_14_c0008.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_94_14/ung_94_14_c0008_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_86_03/ung_86_03_c0019.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_86_03/ung_86_03_c0019_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_86_04/ung_86_04_c0020.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_86_04/ung_86_04_c0020_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/144_23/144_23_c0022.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/144_23/144_23_c0022_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run2/ung_118_03/ung_118_03_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run2/ung_118_03/ung_118_03_c0002_depth.mp4
+signal noise False
+Time taken for one batch: 0.004003763198852539
+Time taken for one batch: 5.669122219085693
+Time taken for one batch: 11.372954845428467
+Time taken for one batch: 17.04741072654724
+Time taken for one batch: 22.699695825576782
+Time taken for one batch: 28.36117434501648
+Time taken for one batch: 34.082549810409546
+time taken after saving: 57.800721645355225
+Time taken for one batch: 0.0021011829376220703
+Time taken for one batch: 5.581759691238403
+Time taken for one batch: 11.176125526428223
+Time taken for one batch: 16.77574348449707
+Time taken for one batch: 22.379605770111084
+Time taken for one batch: 27.983697175979614
+Time taken for one batch: 33.59522223472595
+time taken after saving: 41.52780866622925
+Processing /home/martin.barry/projects/surreal/train/run1/ung_105_33/ung_105_33_c0005.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_105_33/ung_105_33_c0005_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_73_02/ung_73_02_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_73_02/ung_73_02_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_94_12/ung_94_12_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_94_12/ung_94_12_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/15_12/15_12_c0029.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/15_12/15_12_c0029_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_91_23/ung_91_23_c0004.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_91_23/ung_91_23_c0004_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/89_01/89_01_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/89_01/89_01_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/36_29/36_29_c0012.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/36_29/36_29_c0012_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/79_95/79_95_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/79_95/79_95_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_12_04/ung_12_04_c0033.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_12_04/ung_12_04_c0033_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/28_13/28_13_c0013.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/28_13/28_13_c0013_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/28_11/28_11_c0041.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/28_11/28_11_c0041_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run2/ung_122_35/ung_122_35_c0004.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run2/ung_122_35/ung_122_35_c0004_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/40_06/40_06_c0052.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/40_06/40_06_c0052_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/ung_60_04/ung_60_04_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/ung_60_04/ung_60_04_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/79_48/79_48_c0007.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/79_48/79_48_c0007_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run0/40_12/40_12_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run0/40_12/40_12_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_91_35/ung_91_35_c0010.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_91_35/ung_91_35_c0010_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run2/36_12/36_12_c0014.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run2/36_12/36_12_c0014_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/36_35/36_35_c0027.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/36_35/36_35_c0027_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_91_28/ung_91_28_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_91_28/ung_91_28_c0001_depth.mp4
+signal noise False
+Time taken for one batch: 0.032152414321899414
+Time taken for one batch: 5.734913110733032
+Time taken for one batch: 11.438312292098999
+Time taken for one batch: 17.10551881790161
+Time taken for one batch: 22.781249046325684
+Time taken for one batch: 28.46938967704773
+Time taken for one batch: 34.13622260093689
+time taken after saving: 53.24605703353882
+Time taken for one batch: 0.002088308334350586
+Time taken for one batch: 5.584062337875366
+Time taken for one batch: 11.176221132278442
+Time taken for one batch: 16.77335548400879
+Time taken for one batch: 22.374391317367554
+Time taken for one batch: 27.978371620178223
+Time taken for one batch: 33.590781688690186
+time taken after saving: 41.628737688064575
+Processing /home/martin.barry/projects/surreal/train/run0/ung_49_09/ung_49_09_c0005.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_49_09/ung_49_09_c0005_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/137_10/137_10_c0004.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/137_10/137_10_c0004_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/28_05/28_05_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/28_05/28_05_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/70_04/70_04_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/70_04/70_04_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_132_45/ung_132_45_c0006.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_132_45/ung_132_45_c0006_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/80_51/80_51_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/80_51/80_51_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/17_05/17_05_c0051.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/17_05/17_05_c0051_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/15_05/15_05_c0082.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/15_05/15_05_c0082_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/ung_120_19/ung_120_19_c0004.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/ung_120_19/ung_120_19_c0004_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/63_25/63_25_c0003.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/63_25/63_25_c0003_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/02_07/02_07_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/02_07/02_07_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_102_26/ung_102_26_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_102_26/ung_102_26_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_137_32/ung_137_32_c0012.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_137_32/ung_137_32_c0012_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/91_28/91_28_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/91_28/91_28_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_77_32/ung_77_32_c0007.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_77_32/ung_77_32_c0007_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_91_22/ung_91_22_c0011.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_91_22/ung_91_22_c0011_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_132_39/ung_132_39_c0004.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_132_39/ung_132_39_c0004_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/62_07/62_07_c0004.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/62_07/62_07_c0004_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/40_06/40_06_c0005.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/40_06/40_06_c0005_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/ung_60_11/ung_60_11_c0004.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/ung_60_11/ung_60_11_c0004_depth.mp4
+signal noise False
+Time taken for one batch: 0.057932376861572266
+Time taken for one batch: 5.865927457809448
+Time taken for one batch: 11.778182744979858
+Time taken for one batch: 17.55023169517517
+Time taken for one batch: 23.22372531890869
+Time taken for one batch: 28.902241706848145
+Time taken for one batch: 34.55734157562256
+time taken after saving: 55.130711793899536
+Time taken for one batch: 0.002119302749633789
+Time taken for one batch: 5.584585666656494
+Time taken for one batch: 11.179567575454712
+Time taken for one batch: 16.783649444580078
+Time taken for one batch: 22.39214539527893
+Time taken for one batch: 28.00017285346985
+Time taken for one batch: 33.61543369293213
+time taken after saving: 42.132787227630615
+Processing /home/martin.barry/projects/surreal/train/run0/ung_142_10/ung_142_10_c0022.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_142_10/ung_142_10_c0022_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_137_03/ung_137_03_c0014.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_137_03/ung_137_03_c0014_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/85_12/85_12_c0013.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/85_12/85_12_c0013_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/104_40/104_40_c0006.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/104_40/104_40_c0006_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/32_15/32_15_c0017.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/32_15/32_15_c0017_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/80_68/80_68_c0006.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/80_68/80_68_c0006_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/28_19/28_19_c0005.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/28_19/28_19_c0005_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/105_16/105_16_c0007.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/105_16/105_16_c0007_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_142_14/ung_142_14_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_142_14/ung_142_14_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/132_45/132_45_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/132_45/132_45_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run0/40_02/40_02_c0013.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run0/40_02/40_02_c0013_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/54_03/54_03_c0006.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/54_03/54_03_c0006_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/32_04/32_04_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/32_04/32_04_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/108_03/108_03_c0005.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/108_03/108_03_c0005_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_126_01/ung_126_01_c0009.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_126_01/ung_126_01_c0009_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/137_32/137_32_c0024.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/137_32/137_32_c0024_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/79_04/79_04_c0003.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/79_04/79_04_c0003_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_41_08/ung_41_08_c0015.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_41_08/ung_41_08_c0015_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/144_29/144_29_c0016.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/144_29/144_29_c0016_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run2/30_03/30_03_c0003.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run2/30_03/30_03_c0003_depth.mp4
+signal noise False
+Time taken for one batch: 0.048021554946899414
+Time taken for one batch: 5.876785755157471
+Time taken for one batch: 11.795747995376587
+Time taken for one batch: 17.68310570716858
+Time taken for one batch: 23.467448949813843
+Time taken for one batch: 29.25131893157959
+Time taken for one batch: 35.04612159729004
+time taken after saving: 56.53990435600281
+Time taken for one batch: 0.0021126270294189453
+Time taken for one batch: 5.581263303756714
+Time taken for one batch: 11.174079418182373
+Time taken for one batch: 16.77214002609253
+Time taken for one batch: 22.373021602630615
+Time taken for one batch: 27.97854995727539
+Time taken for one batch: 33.59525799751282
+time taken after saving: 41.32624936103821
+Processing /home/martin.barry/projects/surreal/train/run0/ung_41_06/ung_41_06_c0020.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_41_06/ung_41_06_c0020_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_135_11/ung_135_11_c0009.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_135_11/ung_135_11_c0009_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/79_26/79_26_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/79_26/79_26_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/27_03/27_03_c0015.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/27_03/27_03_c0015_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_142_07/ung_142_07_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_142_07/ung_142_07_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_85_03/ung_85_03_c0003.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_85_03/ung_85_03_c0003_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_91_21/ung_91_21_c0010.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_91_21/ung_91_21_c0010_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run0/ung_107_09/ung_107_09_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run0/ung_107_09/ung_107_09_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_132_39/ung_132_39_c0019.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_132_39/ung_132_39_c0019_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run2/36_15/36_15_c0010.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run2/36_15/36_15_c0010_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/15_11/15_11_c0036.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/15_11/15_11_c0036_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/144_02/144_02_c0015.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/144_02/144_02_c0015_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/91_16/91_16_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/91_16/91_16_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/136_13/136_13_c0006.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/136_13/136_13_c0006_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_143_18/ung_143_18_c0003.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_143_18/ung_143_18_c0003_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/105_18/105_18_c0008.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/105_18/105_18_c0008_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/91_35/91_35_c0006.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/91_35/91_35_c0006_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/137_03/137_03_c0005.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/137_03/137_03_c0005_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_132_13/ung_132_13_c0003.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_132_13/ung_132_13_c0003_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/132_30/132_30_c0003.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/132_30/132_30_c0003_depth.mp4
+signal noise False
+Time taken for one batch: 0.003651857376098633
+Time taken for one batch: 5.636715888977051
+Time taken for one batch: 11.300222873687744
+Time taken for one batch: 16.963597536087036
+Time taken for one batch: 22.612957000732422
+Time taken for one batch: 28.26848602294922
+Time taken for one batch: 33.923213720321655
+time taken after saving: 60.02418637275696
+Time taken for one batch: 0.0021305084228515625
+Time taken for one batch: 5.5829548835754395
+Time taken for one batch: 11.176128387451172
+Time taken for one batch: 16.776276350021362
+Time taken for one batch: 22.380478382110596
+Time taken for one batch: 27.989736080169678
+Time taken for one batch: 33.6039776802063
+time taken after saving: 41.86102271080017
+Processing /home/martin.barry/projects/surreal/train/run1/80_59/80_59_c0004.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/80_59/80_59_c0004_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/88_10/88_10_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/88_10/88_10_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/ung_138_32/ung_138_32_c0004.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/ung_138_32/ung_138_32_c0004_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_91_23/ung_91_23_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_91_23/ung_91_23_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_125_03/ung_125_03_c0021.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_125_03/ung_125_03_c0021_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/144_03/144_03_c0003.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/144_03/144_03_c0003_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/ung_118_32/ung_118_32_c0004.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/ung_118_32/ung_118_32_c0004_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/17_03/17_03_c0019.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/17_03/17_03_c0019_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_137_42/ung_137_42_c0014.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_137_42/ung_137_42_c0014_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/54_11/54_11_c0008.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/54_11/54_11_c0008_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/104_32/104_32_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/104_32/104_32_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_136_08/ung_136_08_c0003.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_136_08/ung_136_08_c0003_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/03_04/03_04_c0023.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/03_04/03_04_c0023_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/54_23/54_23_c0003.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/54_23/54_23_c0003_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run2/36_20/36_20_c0015.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run2/36_20/36_20_c0015_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run2/30_22/30_22_c0010.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run2/30_22/30_22_c0010_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_76_06/ung_76_06_c0003.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_76_06/ung_76_06_c0003_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_140_01/ung_140_01_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_140_01/ung_140_01_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/137_33/137_33_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/137_33/137_33_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/28_16/28_16_c0022.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/28_16/28_16_c0022_depth.mp4
+signal noise False
+Time taken for one batch: 0.020279645919799805
+Time taken for one batch: 5.671472787857056
+Time taken for one batch: 11.586335897445679
+Time taken for one batch: 17.298476934432983
+Time taken for one batch: 22.96640706062317
+Time taken for one batch: 28.694310903549194
+Time taken for one batch: 34.40723395347595
+time taken after saving: 57.86516714096069
+Time taken for one batch: 0.002099752426147461
+Time taken for one batch: 5.578768968582153
+Time taken for one batch: 11.172287225723267
+Time taken for one batch: 16.769452571868896
+Time taken for one batch: 22.369903087615967
+Time taken for one batch: 27.97400951385498
+Time taken for one batch: 33.58651351928711
+time taken after saving: 41.48005175590515
+Processing /home/martin.barry/projects/surreal/train/run1/15_04/15_04_c0053.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/15_04/15_04_c0053_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/55_27/55_27_c0030.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/55_27/55_27_c0030_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_106_17/ung_106_17_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_106_17/ung_106_17_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run0/138_37/138_37_c0004.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run0/138_37/138_37_c0004_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_132_39/ung_132_39_c0019.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_132_39/ung_132_39_c0019_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_90_10/ung_90_10_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_90_10/ung_90_10_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_113_29/ung_113_29_c0020.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_113_29/ung_113_29_c0020_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_139_27/ung_139_27_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_139_27/ung_139_27_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_102_07/ung_102_07_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_102_07/ung_102_07_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_111_31/ung_111_31_c0009.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_111_31/ung_111_31_c0009_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/144_13/144_13_c0013.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/144_13/144_13_c0013_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/55_15/55_15_c0039.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/55_15/55_15_c0039_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run2/70_03/70_03_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run2/70_03/70_03_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/54_04/54_04_c0011.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/54_04/54_04_c0011_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/19_09/19_09_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/19_09/19_09_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_114_10/ung_114_10_c0045.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_114_10/ung_114_10_c0045_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/91_24/91_24_c0005.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/91_24/91_24_c0005_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_144_33/ung_144_33_c0014.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_144_33/ung_144_33_c0014_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_142_17/ung_142_17_c0016.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_142_17/ung_142_17_c0016_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_91_27/ung_91_27_c0007.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_91_27/ung_91_27_c0007_depth.mp4
+signal noise False
+Time taken for one batch: 0.020050525665283203
+Time taken for one batch: 5.660303831100464
+Time taken for one batch: 11.320752620697021
+Time taken for one batch: 16.9782555103302
+Time taken for one batch: 22.6378653049469
+Time taken for one batch: 28.30346703529358
+Time taken for one batch: 33.96337676048279
+time taken after saving: 57.92129993438721
+Time taken for one batch: 0.0020515918731689453
+Time taken for one batch: 5.578484535217285
+Time taken for one batch: 11.175677299499512
+Time taken for one batch: 16.777520895004272
+Time taken for one batch: 22.383398294448853
+Time taken for one batch: 27.987064361572266
+Time taken for one batch: 33.59791588783264
+time taken after saving: 41.663039207458496
+Processing /home/martin.barry/projects/surreal/val/run2/39_03/39_03_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/val/run2/39_03/39_03_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/136_33/136_33_c0006.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/136_33/136_33_c0006_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/104_40/104_40_c0018.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/104_40/104_40_c0018_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/ung_136_07/ung_136_07_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/ung_136_07/ung_136_07_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/36_04/36_04_c0023.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/36_04/36_04_c0023_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/144_10/144_10_c0007.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/144_10/144_10_c0007_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_142_14/ung_142_14_c0004.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_142_14/ung_142_14_c0004_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/17_03/17_03_c0001.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/17_03/17_03_c0001_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_91_11/ung_91_11_c0011.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_91_11/ung_91_11_c0011_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/80_45/80_45_c0005.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/80_45/80_45_c0005_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_124_12/ung_124_12_c0011.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_124_12/ung_124_12_c0011_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_86_09/ung_86_09_c0029.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_86_09/ung_86_09_c0029_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_74_17/ung_74_17_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_74_17/ung_74_17_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/137_22/137_22_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/137_22/137_22_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/ung_137_11/ung_137_11_c0026.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/ung_137_11/ung_137_11_c0026_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run1/15_04/15_04_c0047.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run1/15_04/15_04_c0047_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/ung_83_22/ung_83_22_c0008.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/ung_83_22/ung_83_22_c0008_depth.mp4
+Processing /home/martin.barry/projects/surreal/test/run1/36_13/36_13_c0024.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/test/run1/36_13/36_13_c0024_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run0/55_14/55_14_c0002.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run0/55_14/55_14_c0002_depth.mp4
+Processing /home/martin.barry/projects/surreal/train/run2/91_24/91_24_c0010.mp4
+Depth video saved as: /home/martin.barry/projects/surreal/train/run2/91_24/91_24_c0010_depth.mp4
+signal noise False
+Time taken for one batch: 0.0040471553802490234
+Time taken for one batch: 5.637541770935059
+Time taken for one batch: 11.28577995300293
+Time taken for one batch: 16.932843923568726
+Time taken for one batch: 22.61274290084839
+Time taken for one batch: 28.280489683151245
+Time taken for one batch: 33.943337202072144

@@ -553,7 +553,78 @@ class EventEmulator(object):
             self.video_writers[name].write(
                 cv2.cvtColor((img * 255).astype(np.uint8),
                              cv2.COLOR_GRAY2BGR))
+    @torch.jit.script
+    def find_events(
+        pos_evts_frame: torch.Tensor,
+        neg_evts_frame: torch.Tensor,
+        ts: torch.Tensor,
+        timestamp_mem: torch.Tensor,
+        refractory_period_s: float
+        ):
+        H, W = pos_evts_frame.shape
+        max_events = int(torch.max(pos_evts_frame).item())
 
+        thresholds = torch.arange(1, max_events + 1, device=pos_evts_frame.device).view(-1, 1, 1)
+        ts_steps = ts[:thresholds.shape[0]].view(-1, 1, 1)  # ensure shapes match
+        
+        # Step 1: Build masks [N, H, W]
+        pos_mask = thresholds <= pos_evts_frame
+        neg_mask = thresholds <= neg_evts_frame
+
+        # Step 2: Apply refractory period (optional)
+        if refractory_period_s > 0.0:
+            time_since_last = ts_steps - timestamp_mem.unsqueeze(0)  # [N, H, W]
+            valid_pos = pos_mask & (time_since_last > refractory_period_s)
+            valid_neg = neg_mask & (time_since_last > refractory_period_s)
+        else:
+            valid_pos = pos_mask
+            valid_neg = neg_mask
+
+        # Step 3: Update timestamp memory (only once per pixel, use latest ts)
+        latest_valid_pos = valid_pos.any(dim=0)
+        latest_valid_neg = valid_neg.any(dim=0)
+        timestamp_mem = torch.where(latest_valid_pos | latest_valid_neg, ts[-1], timestamp_mem)
+
+        # Step 4: Generate event coordinates
+        events_list = []
+
+        for i in range(valid_pos.shape[0]):
+            t = ts[i]
+
+            # POS
+            pos_coords = valid_pos[i].nonzero()
+            if pos_coords.size(0) > 0:
+                y = pos_coords[:, 0]
+                x = pos_coords[:, 1]
+                pos_events = torch.stack((
+                    x, y,
+                    t.expand_as(x),
+                    torch.ones_like(x, dtype=torch.float)
+                ), dim=1)
+                events_list.append(pos_events)
+
+            # NEG
+            neg_coords = valid_neg[i].nonzero()
+            if neg_coords.size(0) > 0:
+                y = neg_coords[:, 0]
+                x = neg_coords[:, 1]
+                neg_events = torch.stack((
+                    x, y,
+                    t.expand_as(x),
+                    -torch.ones_like(x, dtype=torch.float)
+                ), dim=1)
+                events_list.append(neg_events)
+
+
+        if events_list:
+            events = torch.cat(events_list, dim=0)
+            # Shuffle once at the end
+            idx = torch.randperm(events.shape[0], device=events.device)
+            events = events[idx]
+        else:
+            events = torch.empty((0, 4), device=ts.device)
+
+        return events, timestamp_mem
     def generate_events(self, new_frame, t_frame):
         """Compute events in new frame.
 
@@ -581,7 +652,8 @@ class EventEmulator(object):
         # update frame counter
 
         self.frame_counter += 1
-
+        import time
+        start = time.time()
         if t_frame < self.t_previous:
             raise ValueError(
                 "this frame time={} must be later than "
@@ -635,7 +707,6 @@ class EventEmulator(object):
             self.photoreceptor_noise_samples.append(
                 self.photoreceptor_noise_arr[0, 0].cpu().item())  # todo debugging can remove
             # std=np.std(self.photoreceptor_noise_samples)
-
         # surround computations by time stepping the diffuser
         if self.csdvs_enabled:
             self._update_csdvs(delta_time)
@@ -698,13 +769,11 @@ class EventEmulator(object):
             k = cv2.waitKey(30)
             if k == 27 or k == ord('x'):
                 v2e_quit()
-
         # generate event map
         # print(f'\ndiff_frame max={torch.max(self.diff_frame)} pos_thres mean={torch.mean(self.pos_thres)} expect {int(torch.max(self.diff_frame)/torch.mean(self.pos_thres))} max events')
         pos_evts_frame, neg_evts_frame = compute_event_map(
             self.diff_frame, self.pos_thres, self.neg_thres)
         ## plot the positive event map
-        
 
         max_num_events_any_pixel = max(pos_evts_frame.max(),
                                        neg_evts_frame.max())  # max number of events in any pixel for this interframe
@@ -806,7 +875,6 @@ class EventEmulator(object):
                     events=torch.cat((events,events_curr_iter))
 
                 # end of iteration over max_num_events_any_pixel
-
         # NOISE: add shot temporal noise here by
         # simple Poisson process that has a base noise rate
         # self.shot_noise_rate_hz.
@@ -887,13 +955,7 @@ class EventEmulator(object):
             if signnoise_label is not None:
                 signnoise_label=signnoise_label.cpu().numpy()
           
-        
-            for vid_idx in range(len(self.vids)): 
-                if self.vids[vid_idx].dvs_aedat4 is not None:
-                    special_events = events[events[:,-1]==vid_idx]
-                    self.vids[vid_idx].dvs_aedat4.appendEvents(special_events, signnoise_label=signnoise_label)
-                
-
+            
         if not self.record_single_pixel_states is None:
             if self.single_pixel_sample_count<self.SINGLE_PIXEL_MAX_SAMPLES:
                 k=self.single_pixel_sample_count

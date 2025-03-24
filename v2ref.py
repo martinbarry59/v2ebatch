@@ -34,7 +34,7 @@ from v2ecore.emulator import EventEmulator
 from v2ecore.v2e_utils import mat_to_mp4
 import sys
 import h5py
-
+import tqdm 
 ## get current directory
 path = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(f'{path}/v2ecore/')
@@ -284,7 +284,6 @@ def tmp_npy(vid, emulator, source_frames_dir, vid_idx, max_frames ):
         # save frame into numpy records
         video_frames.append(inputVideoFrame)
         
-        # print("Writing source frame {}".format(save_path), end="\r")
     video_frames = np.stack(video_frames, axis=0)
     save_path = os.path.join( source_frames_dir,f"video_{str(vid_idx).zfill(4)}.h5")
     with h5py.File(save_path, 'w') as f:
@@ -331,6 +330,7 @@ def get_models(args, vids, exposure_mode, exposure_val, area_dimension, torch_de
 
 
     if "depth" not in vids[0].file_path:
+        print("signal noise", args.label_signal_noise)
 
         emulator = EventEmulator(
             vids=vids,
@@ -375,10 +375,7 @@ def slowmo_upsampling(args, slomo, source_frames_dir, interpFramesFolder, srcFra
     if slomo is not None and (args.auto_timestamp_resolution or slowdown_factor != NO_SLOWDOWN):
         # interpolated frames are stored to tmpfolder as
         # 1.png, 2.png, etc
-        import time
-        start = time.time()
         slow_mo_vids, interpTimes, avgUpsamplingFactor = slomo.interpolate_batch(source_frames_dir, interpFramesFolder)
-        print(f"JUST THIS time to interpolate frames {time.time() - start}")
         avgTs = srcFrameIntervalS / avgUpsamplingFactor
         # check for undersampling wrt the
         # photoreceptor lowpass filtering
@@ -410,10 +407,7 @@ def event_sampling(vids_slowmo, vids, emulator, eventRenderer, interpTimes, args
 
     # generate events from frames and accumulate events to DVS frames for output DVS video
     with torch.no_grad():
-        from tqdm import tqdm
-        for i in tqdm(range(nFrames)):
-            
-            
+        for i in range(nFrames):
             fr = vids_slowmo[:, i]
 
             newEvents = emulator.generate_events(
@@ -424,31 +418,33 @@ def event_sampling(vids_slowmo, vids, emulator, eventRenderer, interpTimes, args
                     and not args.skip_video_output:
                 events = np.append(events, newEvents, axis=0)
                 events = np.array(events)
-                
-    #             if i % args.batch_size == 0:
-    #                 eventRenderer.render_events_to_frames(
-    #                     events, height=args.output_height,
-    #                     width=args.output_width,
-    #                     batch_size = len(vids))
-    #                 events = np.zeros((0, 5), dtype=np.float32)
-    #     # process leftover events
-    #     print(f"time to generate all events within loop {time.time() - start}")
-    #     if len(events) > 0 and not args.skip_video_output:
-    #         eventRenderer.render_events_to_frames(
-    #             events, height=args.output_height, width=args.output_width, batch_size = len(vids))
-    # print(f"time to generate all remanant events {time.time() - start}")
+        
+                # if i % args.batch_size == 0:
+                #     eventRenderer.render_events_to_frames(
+                #         events, height=args.output_height,
+                #         width=args.output_width,
+                #         batch_size = len(vids))
+                #     events = np.zeros((0, 5), dtype=np.float32)
+        # process leftover events
+        for vid_idx in range(len(emulator.vids)): 
+            if emulator.vids[vid_idx].dvs_aedat4 is not None:
+                special_events = events[events[:,-1]==vid_idx]
+                emulator.vids[vid_idx].dvs_aedat4.appendEvents(special_events, signnoise_label=None)
+        # if len(events) > 0 and not args.skip_video_output:
+        #     eventRenderer.render_events_to_frames(
+        #         events, height=args.output_height, width=args.output_width, batch_size = len(vids))
     
 class VideoInfos:
     def __init__(self, file_path, args):
         self.file_path = file_path
         self.output_folder = file_path.split(".mp4")[0]
-        
+        self.dvs_aedat4 = None
         if "_depth" in file_path:
             ## remove the _depth from the file name
             self.output_folder = file_path.split("_depth")[0]
-            self.dvs_aedat4 = "depth no save"
-        else:
-            self.processed_folder = self.output_folder.replace("surreal", "processed_surreal")
+        self.processed_folder = self.output_folder.replace("surreal", "processed_surreal")
+        if "_depth" not in file_path:
+            
             self.dvs_aedat4 =  self.processed_folder + '/dvs.aedat4'
             self.video_dvs = self.processed_folder + '/dvs.mp4'
             self.dvs_times = self.processed_folder + '/dvs_frames_times.txt'
@@ -596,24 +592,21 @@ def main(file_paths: str):
         vid_idx = 0
         max_frames = max([vid.srcNumFramesToBeProccessed for vid in vids])
         for vid in vids:
-            num_frames = tmp_npy(vid, emulator, source_frames_dir, vid_idx,max_frames)
+            _ = tmp_npy(vid, emulator, source_frames_dir, vid_idx,max_frames)
                                             
             vid_idx += 1
             
-        print(f"time to extract frames {time.time() - start}")
         
         with TemporaryDirectory(dir="/home/martin.barry/projects/tmp/") as interpFramesFolder:
             interpTimes = None
             # make input to slomo
             slow_mo_vids, interpTimes = slowmo_upsampling(args, slomo, source_frames_dir, interpFramesFolder, 
                                                                     srcFrameIntervalS, slowdown_factor, logger)
-            print(f"time to interpolate frames {time.time() - start}")
             if emulator is not None:   
                 # compute times of output integrated frames
                 event_sampling(slow_mo_vids, vids, emulator, eventRenderer, interpTimes, args)
                 # eventRenderer.cleanup()
                 emulator.cleanup()
-                print(f"time to generate events {time.time() - start}")
        
     # Clean up
     for vid in vids:
@@ -632,31 +625,25 @@ if __name__ == "__main__":
 
     files = glob.glob(os.path.join(data_path, "**/*.mp4"), recursive = True)
     files = [file for file in files if not "depth" in file]
+    ## shuffling the files
+    np.random.shuffle(files)
+
     batch_size = 20
-    print(f"processing {len(files)} files")
     
     start = time.time()
     elapsed = 0
-    for i in range(0, len(files), batch_size):
-        print(i)
+    for i in tqdm.tqdm(range(0, len(files), batch_size)):
         batch = files[i:i + batch_size]
-        print(f"processing {len(batch)} files")
         for file in batch:
             mat_to_mp4(file) ## makes sur that depth file is created
-        print("starting main")
         main(batch)
-        exit()
         depth_file = file.replace(".mp4", "_depth.mp4")
         depth_batch = [file.replace(".mp4", "_depth.mp4") for file in batch]
-        print("starting dpeth")
         
         main(depth_batch)
         end = time.time()
         elapsed += end - start
-        print("done")
         estimated = (end - start) * (len(files) - i - batch_size)
         start = end
-        print(f"elapsed time {elapsed}, estimated time remaining {estimated} seconds")
 
-        exit()
     v2e_quit()

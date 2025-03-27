@@ -255,6 +255,7 @@ def tmp_npy(vid, emulator, source_frames_dir, vid_idx, max_frames ):
         if inputFrameIndex < vid.srcNumFramesToBeProccessed: 
             # read frame
             ret, inputVideoFrame = vid.cap.read()
+
             num_frames+=1
             if ret==False:
                 logger.warning(f'could not read frame {inputFrameIndex} from {vid.cap}')
@@ -298,6 +299,7 @@ def tmp_npy(vid, emulator, source_frames_dir, vid_idx, max_frames ):
         video_frames.append(inputVideoFrame)
         
     video_frames = np.stack(video_frames, axis=0)
+    
     save_path = os.path.join( source_frames_dir,f"video_{str(vid_idx).zfill(4)}.h5")
     with h5py.File(save_path, 'w') as f:
         f.create_dataset('video', data=video_frames)
@@ -383,11 +385,11 @@ def get_models(args, vids, exposure_mode, exposure_val, area_dimension, torch_de
     else:
         emulator, eventRenderer = None, None
     return emulator, eventRenderer, slomo, srcFrameIntervalS, slowdown_factor
-def slowmo_upsampling(args, slomo, source_frames_dir, interpFramesFolder, srcFrameIntervalS, slowdown_factor, logger):
+def slowmo_upsampling(args, slomo, source_frames_dir, srcFrameIntervalS, slowdown_factor, logger):
     if slomo is not None and (args.auto_timestamp_resolution or slowdown_factor != NO_SLOWDOWN):
         # interpolated frames are stored to tmpfolder as
         # 1.png, 2.png, etc
-        slow_mo_vids, interpTimes, avgUpsamplingFactor = slomo.interpolate_batch(source_frames_dir, interpFramesFolder)
+        slow_mo_vids, interpTimes, avgUpsamplingFactor = slomo.interpolate_batch(source_frames_dir)
         avgTs = srcFrameIntervalS / avgUpsamplingFactor
         # check for undersampling wrt the
         # photoreceptor lowpass filtering
@@ -605,7 +607,7 @@ def main(file_paths: str):
     
     emulator, eventRenderer, slomo, srcFrameIntervalS, slowdown_factor = get_models(args, vids, exposure_mode, exposure_val, area_dimension, torch_device)
     tmp_path = "/home/martin.barry/projects/tmp/"
-    with TemporaryDirectory(dir = tmp_path) as source_frames_dir:
+    with TemporaryDirectory() as source_frames_dir:
         vid_idx = 0
         max_frames = max([vid.srcNumFramesToBeProccessed for vid in vids])
         for vid in vids:
@@ -613,17 +615,15 @@ def main(file_paths: str):
                                             
             vid_idx += 1
             
-        
-        with TemporaryDirectory(dir = tmp_path) as interpFramesFolder:
             interpTimes = None
             # make input to slomo
-            slow_mo_vids, interpTimes = slowmo_upsampling(args, slomo, source_frames_dir, interpFramesFolder, 
-                                                                    srcFrameIntervalS, slowdown_factor, logger)
-            if emulator is not None:   
-                # compute times of output integrated frames
-                event_sampling(slow_mo_vids, vids, emulator, eventRenderer, interpTimes, args)
-                # eventRenderer.cleanup()
-                emulator.cleanup()
+        slow_mo_vids, interpTimes = slowmo_upsampling(args, slomo, source_frames_dir, 
+                                                                srcFrameIntervalS, slowdown_factor, logger)
+        if emulator is not None:   
+            # compute times of output integrated frames
+            event_sampling(slow_mo_vids, vids, emulator, eventRenderer, interpTimes, args)
+            # eventRenderer.cleanup()
+            emulator.cleanup()
        
     # Clean up
     for vid in vids:
@@ -637,8 +637,8 @@ if __name__ == "__main__":
     import glob
     import os
 
-    data_path = "/home/martin.barry/projects/surreal/" ## change to your data path
-    # data_path = "/home/martin-barry/Downloads/surreal/"
+    # data_path = "/home/martin.barry/projects/surreal/" ## change to your data path
+    data_path = "/home/martin-barry/Downloads/surreal/"
     processed_files = glob.glob(os.path.join(data_path.replace("surreal", "processed_surreal"), "**/*.h5"), recursive = True)
     files = glob.glob(os.path.join(data_path, "**/*.mp4"), recursive = True)
     files = [file for file in files if test_file_path(file, processed_files)]
@@ -653,7 +653,7 @@ if __name__ == "__main__":
         batch = files[i:i + batch_size]
         for file in batch:
             mat_to_mp4(file) ## makes sur that depth file is created
-        main(batch)
+        # main(batch)
         depth_file = file.replace(".mp4", "_depth.mp4")
         depth_batch = [file.replace(".mp4", "_depth.mp4") for file in batch]
         

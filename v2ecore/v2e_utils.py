@@ -526,8 +526,8 @@ def mat_to_mp4(file: str) -> None:
     mat_file_path = video_path.split(".mp4")[0] +"_depth.mat"
     output_depth_video_path = video_path.split(".mp4")[0] +"_depth.mp4"
     # test if output file already exists
-    if "depth" in file or os.path.exists(output_depth_video_path):
-        return 
+    # if "depth" in file or os.path.exists(output_depth_video_path):
+    #     return 
 
     video_path = file
     
@@ -591,15 +591,16 @@ def mat_to_mp4(file: str) -> None:
             depth_colored = cv2.applyColorMap(depth_frame, cv2.COLORMAP_JET)
             
             # Ensure background remains dark (black or gray)
-            depth_colored[background_mask] = [50, 50, 50]  # Dark gray background
+            depth_colored[background_mask] = [0, 0, 0]  # Dark gray background
             
             # Resize depth frame to match the video frame size
             depth_resized = cv2.resize(depth_colored, (frame_width, frame_height))
             
             # Write the depth frame to the depth video
+            
             depth_out.write(depth_resized)
             
-            # Concatenate the original and depth frames side by side
+            # # Concatenate the original and depth frames side by side
             # combined_frame = np.hstack((video_frame, depth_resized))
             
             # # Show the frames

@@ -42,26 +42,13 @@ class FramesListDataset(Dataset):
         with h5py.File(vid_path, 'r') as f:
             self.images =  f['video'][:]
             self.images = F.interpolate(torch.from_numpy(self.images).float().unsqueeze(1).to(self.device), size=self.dim, mode='bilinear', align_corners=False)
-            self.images = self.images/255 - 0.48
-        # if transform is not None:
-        #     self.images = torch.stack([transform(frame) for frame in self.images])
-        #     print("transformed")
-        #     print(self.images.mean(), self.images.std())
-        #     print(self.images.shape)        
+            self.images =self.images/255 - 0.48
+            
         
-
-        #  self.origDim = array.shape[2], array.shape[1]
         
     def __len__(self):
         return len(self.images) - 1
-    # def loading_image(self, file):
-    #     image = np.load(file)
-    #     image = Image.fromarray(image)
-    #     image = image.resize(self.dim, Image.Resampling.LANCZOS)
-    #     # Apply transformation if specified.
-    #     if self.transform is not None:
-    #         image = self.transform(image)
-    #     return image
+
     def __repr__(self):
 
         """Return printable representations of the class.
@@ -308,7 +295,7 @@ class SuperSloMo(object):
 
         return output_tensor.squeeze(1)
  
-    def interpolate_batch(self, source_frame_paths, tmp_output_folder):
+    def interpolate_batch(self, source_frame_paths):
         """
         Interpolate frames for multiple videos in parallel.
         
@@ -389,10 +376,9 @@ class SuperSloMo(object):
                     
                     output_tensors = self.process_videos_tensor(Ft_p, ori_dims, self.upsampling_factor)
                     output_tensors = output_tensors.view(num_videos, num_batch_frames, *output_tensors.shape[1:])
-                    output_tensors + intermediate_idx
                     outputFrameIdx=outputFrameCounter + torch.arange(num_batch_frames) * self.upsampling_factor + intermediate_idx
                     all_frames_slomo[:, outputFrameIdx , :, :] = ((output_tensors + 0.48)* 255 ).clamp(0, 255).to(torch.uint8)
-
+                    # all_frames_slomo[:, outputFrameIdx , :, :] = ((output_tensors ).clamp(0, 1)* 255).to(torch.uint8)
                     # for vid_idx in range(num_videos):
                     #     for batch_idx in range(num_batch_frames):
                     #         print(Ft_p[vid_idx, batch_idx])
@@ -407,6 +393,11 @@ class SuperSloMo(object):
                 inputFrameCounter += num_batch_frames # batch_size-1 because we repeat frame1 as frame0
                 outputFrameCounter += numOutputFramesThisBatch # batch_size-1 because we repeat frame1 as frame0
         to_save = all_frames_slomo.cpu().numpy()
+
+        import cv2
+        for img in to_save[0]:
+            cv2.imshow("img", img)
+            cv2.waitKey(100)
         save_args = []
         for idx, vid in enumerate(self.vids):
             path = vid.vid_slomo  # a simple string path

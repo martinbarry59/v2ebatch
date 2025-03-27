@@ -643,9 +643,9 @@ if __name__ == "__main__":
     files = glob.glob(os.path.join(data_path, "**/*.mp4"), recursive = True)
     files = [file for file in files if test_file_path(file, processed_files)]
     ## shuffling the files
-    # np.random.shuffle(files)
+    np.random.shuffle(files)
 
-    batch_size = 2
+    batch_size = 40
     
     start = time.time()
     elapsed = 0

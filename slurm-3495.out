@@ -1,0 +1,11 @@
+  0%|          | 0/2267 [00:00<?, ?it/s]  0%|          | 0/2267 [01:18<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/martin.barry/projects/v2ebatch/v2ref.py", line 741, in <module>
+    main(batch)
+  File "/home/martin.barry/projects/v2ebatch/v2ref.py", line 708, in main
+    event_sampling(slow_mo_vids, vids, emulator, eventRenderer, interpTimes, args)
+  File "/home/martin.barry/projects/v2ebatch/v2ref.py", line 510, in event_sampling
+    newEvents = emulator.generate_events(
+  File "/home/martin.barry/projects/v2ebatch/v2ecore/emulator.py", line 925, in generate_events
+    signnoise_label=signnoise_label[idx].view(signnoise_label.size())
+RuntimeError: shape '[138620]' is invalid for input of size 1

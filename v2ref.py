@@ -123,7 +123,8 @@ def set_realistic_noise_profile(args, luminosity_condition='normal'):
         args.noise_rate_cov_decades = np.random.uniform(0.08, 0.15)
     
     # Common realistic parameters
-    args.photoreceptor_noise = True
+    args.photoreceptor_noise = np.random.rand() < 0.8  # 50% chance to enable
+    # args.label_signal_noise = not args.photoreceptor_noise 
     args.leak_jitter_fraction = np.random.uniform(0.1, 0.2)
     args.refractory_period = np.random.uniform(0.0002, 0.0008)
     args.dvs_emulator_seed = np.random.randint(1, 10000)
@@ -166,7 +167,11 @@ def add_burst_and_saturation_effects(args):
     """
     # Simulate burst effects from bright/dark transitions
     burst_probability = np.random.uniform(0.1, 0.3)
-    
+    if np.random.random() < burst_probability:
+        # Short-lived increase in effective noise rates (proxy for burstiness)
+        burst_scale = np.random.uniform(1.3, 2.0)
+        args.leak_rate_hz *= burst_scale
+        args.shot_noise_rate_hz *= burst_scale
     # Simulate saturation effects in very bright/dark regions
     # This affects the effective dynamic range
     if np.random.random() < 0.3:  # 30% chance of challenging lighting
@@ -716,8 +721,8 @@ if __name__ == "__main__":
     import glob
     import os
 
-    # data_path = "/home/martin.barry/projects/surreal/" ## change to your data path
-    data_path = "/home/martin-barry/Downloads/surreal/"
+    data_path = "/home/martin.barry/projects/surreal/" ## change to your data path
+    # data_path = "/home/martin-barry/Downloads/surreal/"
     processed_files = glob.glob(os.path.join(data_path.replace("surreal", "processed_surreal"), "**/*.h5"), recursive = True)
     files = glob.glob(os.path.join(data_path, "**/*.mp4"), recursive = True)
     files = [file for file in files if test_file_path(file, processed_files)]
@@ -725,7 +730,7 @@ if __name__ == "__main__":
     ## shuffling the files
     np.random.shuffle(files)
 
-    batch_size = 1
+    batch_size = 30
     
     start = time.time()
     elapsed = 0

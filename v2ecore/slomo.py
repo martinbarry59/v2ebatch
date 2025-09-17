@@ -394,10 +394,7 @@ class SuperSloMo(object):
                 outputFrameCounter += numOutputFramesThisBatch # batch_size-1 because we repeat frame1 as frame0
         to_save = all_frames_slomo.cpu().numpy()
 
-        import cv2
-        for img in to_save[0]:
-            cv2.imshow("img", img)
-            cv2.waitKey(100)
+
         save_args = []
         for idx, vid in enumerate(self.vids):
             path = vid.vid_slomo  # a simple string path

@@ -607,7 +607,7 @@ def main(file_paths: str):
     
     emulator, eventRenderer, slomo, srcFrameIntervalS, slowdown_factor = get_models(args, vids, exposure_mode, exposure_val, area_dimension, torch_device)
     tmp_path = "/home/martin.barry/projects/tmp/"
-    with TemporaryDirectory() as source_frames_dir:
+    with TemporaryDirectory(dir = tmp_path) as source_frames_dir:
         vid_idx = 0
         max_frames = max([vid.srcNumFramesToBeProccessed for vid in vids])
         for vid in vids:
@@ -637,15 +637,16 @@ if __name__ == "__main__":
     import glob
     import os
 
-    # data_path = "/home/martin.barry/projects/surreal/" ## change to your data path
-    data_path = "/home/martin-barry/Downloads/surreal/"
+    data_path = "/home/martin.barry/projects/surreal/" ## change to your data path
+    # data_path = "/home/martin-barry/Downloads/surreal/"
     processed_files = glob.glob(os.path.join(data_path.replace("surreal", "processed_surreal"), "**/*.h5"), recursive = True)
     files = glob.glob(os.path.join(data_path, "**/*.mp4"), recursive = True)
     files = [file for file in files if test_file_path(file, processed_files)]
+
     ## shuffling the files
     np.random.shuffle(files)
 
-    batch_size = 40
+    batch_size = 30
     
     start = time.time()
     elapsed = 0
@@ -653,7 +654,7 @@ if __name__ == "__main__":
         batch = files[i:i + batch_size]
         for file in batch:
             mat_to_mp4(file) ## makes sur that depth file is created
-        # main(batch)
+        main(batch)
         depth_file = file.replace(".mp4", "_depth.mp4")
         depth_batch = [file.replace(".mp4", "_depth.mp4") for file in batch]
         

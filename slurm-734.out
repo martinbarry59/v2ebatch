@@ -1,0 +1,56 @@
+  0%|          | 0/1508 [00:00<?, ?it/s]  0%|          | 1/1508 [03:31<88:21:35, 211.08s/it]  0%|          | 2/1508 [07:25<94:09:07, 225.06s/it]  0%|          | 3/1508 [10:51<90:24:48, 216.27s/it]  0%|          | 4/1508 [14:13<87:55:52, 210.47s/it]  0%|          | 5/1508 [17:30<85:53:13, 205.72s/it]  0%|          | 6/1508 [21:05<87:06:36, 208.79s/it]  0%|          | 7/1508 [24:26<86:01:17, 206.31s/it]  0%|          | 7/1508 [25:42<91:52:48, 220.37s/it]
+multiprocessing.pool.RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/home/martin.barry/projects/v2ebatch/v2ecore/v2e_utils.py", line 360, in save_array_to_h5
+    f.create_dataset("vids", data=array, compression="gzip")
+  File "/opt/conda/envs/v2e/lib/python3.10/site-packages/h5py/_hl/group.py", line 186, in create_dataset
+    dsid = dataset.make_new_dset(group, shape, dtype, data, name, **kwds)
+  File "/opt/conda/envs/v2e/lib/python3.10/site-packages/h5py/_hl/dataset.py", line 178, in make_new_dset
+    dset_id.write(h5s.ALL, h5s.ALL, data)
+  File "h5py/_objects.pyx", line 54, in h5py._objects.with_phil.wrapper
+  File "h5py/_objects.pyx", line 55, in h5py._objects.with_phil.wrapper
+  File "h5py/h5d.pyx", line 281, in h5py.h5d.DatasetID.write
+  File "h5py/_proxy.pyx", line 115, in h5py._proxy.dset_rw
+OSError: [Errno 28] Can't synchronously write data (file write failed: time = Wed Apr 23 09:13:30 2025
+, filename = '/home/martin.barry/projects/processed_surreal/train/run1/ung_144_32/ung_144_32_c0005/vid_slomo.h5', file descriptor = 42, errno = 28, error message = 'No space left on device', buf = 0x4c3116a3, total write size = 15192, bytes this sub-write = 15192, offset = 2949120)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/conda/envs/v2e/lib/python3.10/multiprocessing/pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+  File "/opt/conda/envs/v2e/lib/python3.10/multiprocessing/pool.py", line 48, in mapstar
+    return list(map(*args))
+  File "/home/martin.barry/projects/v2ebatch/v2ecore/v2e_utils.py", line 359, in save_array_to_h5
+    with h5py.File(path, "w") as f:
+  File "h5py/_objects.pyx", line 54, in h5py._objects.with_phil.wrapper
+  File "h5py/_objects.pyx", line 55, in h5py._objects.with_phil.wrapper
+  File "/opt/conda/envs/v2e/lib/python3.10/site-packages/h5py/_hl/files.py", line 648, in __exit__
+    self.close()
+  File "/opt/conda/envs/v2e/lib/python3.10/site-packages/h5py/_hl/files.py", line 629, in close
+    self.id._close_open_objects(h5f.OBJ_LOCAL | ~h5f.OBJ_FILE)
+  File "h5py/_objects.pyx", line 54, in h5py._objects.with_phil.wrapper
+  File "h5py/_objects.pyx", line 55, in h5py._objects.with_phil.wrapper
+  File "h5py/h5f.pyx", line 355, in h5py.h5f.FileID._close_open_objects
+OSError: [Errno 28] Driver write request failed (file write failed: time = Wed Apr 23 09:13:30 2025
+, filename = '/home/martin.barry/projects/processed_surreal/train/run1/ung_144_32/ung_144_32_c0005/vid_slomo.h5', file descriptor = 42, errno = 28, error message = 'No space left on device', buf = 0x441bc050, total write size = 2732, bytes this sub-write = 2732, offset = 2964312)
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/martin.barry/projects/v2ebatch/v2ref.py", line 657, in <module>
+    main(batch)
+  File "/home/martin.barry/projects/v2ebatch/v2ref.py", line 620, in main
+    slow_mo_vids, interpTimes = slowmo_upsampling(args, slomo, source_frames_dir, 
+  File "/home/martin.barry/projects/v2ebatch/v2ref.py", line 392, in slowmo_upsampling
+    slow_mo_vids, interpTimes, avgUpsamplingFactor = slomo.interpolate_batch(source_frames_dir)
+  File "/home/martin.barry/projects/v2ebatch/v2ecore/slomo.py", line 405, in interpolate_batch
+    pool.map(save_array_to_h5, save_args)
+  File "/opt/conda/envs/v2e/lib/python3.10/multiprocessing/pool.py", line 367, in map
+    return self._map_async(func, iterable, mapstar, chunksize).get()
+  File "/opt/conda/envs/v2e/lib/python3.10/multiprocessing/pool.py", line 774, in get
+    raise self._value
+OSError: [Errno 28] Driver write request failed (file write failed: time = Wed Apr 23 09:13:30 2025
+, filename = '/home/martin.barry/projects/processed_surreal/train/run1/ung_144_32/ung_144_32_c0005/vid_slomo.h5', file descriptor = 42, errno = 28, error message = 'No space left on device', buf = 0x441bc050, total write size = 2732, bytes this sub-write = 2732, offset = 2964312)

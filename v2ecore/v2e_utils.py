@@ -526,8 +526,8 @@ def mat_to_mp4(file: str) -> None:
     mat_file_path = video_path.split(".mp4")[0] +"_depth.mat"
     output_depth_video_path = video_path.split(".mp4")[0] +"_depth.mp4"
     # test if output file already exists
-    # if "depth" in file or os.path.exists(output_depth_video_path):
-    #     return 
+    if "depth" in file or os.path.exists(output_depth_video_path):
+        return 
 
     video_path = file
     

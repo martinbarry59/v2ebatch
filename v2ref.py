@@ -85,6 +85,55 @@ def test_file_path(file_path: str, processed_files) -> str:
     # print(output_file)
     # exit()
     return output_file not in processed_files and "_depth" not in file_path
+
+def set_realistic_noise_profile(args, luminosity_condition='normal'):
+    """
+    Set realistic noise parameters based on lighting conditions
+    
+    Parameters:
+    - luminosity_condition: 'low', 'normal', 'high', or 'random'
+    """
+    if luminosity_condition == 'random':
+        luminosity_condition = np.random.choice(['low', 'normal', 'high'], p=[0.3, 0.5, 0.2])
+    print("setting noise profile for", luminosity_condition, "light")
+    base_noise_scale = np.random.uniform(0.8, 1.2)
+    
+    if luminosity_condition == 'low':
+        # Low light: high shot noise, more threshold variation
+        args.shot_noise_rate_hz = np.random.uniform(5.0, 15.0) * base_noise_scale
+        args.leak_rate_hz = np.random.uniform(0.1, 0.3) * base_noise_scale
+        args.sigma_thres = np.random.uniform(0.06, 0.12)
+        args.cutoff_hz = int(np.random.uniform(15, 35))  # Lower bandwidth in low light
+        args.noise_rate_cov_decades = np.random.uniform(0.15, 0.25)
+        
+    elif luminosity_condition == 'high':
+        # High light: low shot noise, less variation
+        args.shot_noise_rate_hz = np.random.uniform(0.1, 1.0) * base_noise_scale
+        args.leak_rate_hz = np.random.uniform(0.01, 0.05) * base_noise_scale
+        args.sigma_thres = np.random.uniform(0.02, 0.05)
+        args.cutoff_hz = int(np.random.uniform(50, 100))  # Higher bandwidth in bright light
+        args.noise_rate_cov_decades = np.random.uniform(0.05, 0.1)
+        
+    else:  # normal
+        # Normal lighting: moderate noise
+        args.shot_noise_rate_hz = np.random.uniform(1.0, 5.0) * base_noise_scale
+        args.leak_rate_hz = np.random.uniform(0.03, 0.1) * base_noise_scale
+        args.sigma_thres = np.random.uniform(0.03, 0.07)
+        args.cutoff_hz = int(np.random.uniform(25, 60))
+        args.noise_rate_cov_decades = np.random.uniform(0.08, 0.15)
+    
+    # Common realistic parameters
+    args.photoreceptor_noise = True
+    args.leak_jitter_fraction = np.random.uniform(0.1, 0.2)
+    args.refractory_period = np.random.uniform(0.0002, 0.0008)
+    args.dvs_emulator_seed = np.random.randint(1, 10000)
+    
+    logger.info(f"Set {luminosity_condition} light noise profile: "
+                f"shot_noise={args.shot_noise_rate_hz:.2f}Hz, "
+                f"leak_rate={args.leak_rate_hz:.3f}Hz, "
+                f"sigma_thres={args.sigma_thres:.3f}, "
+                f"cutoff_hz={args.cutoff_hz}Hz")
+
 def get_args():
     """ proceses input arguments
     :returns: (args_namespace,other_args,command_line) """
@@ -109,18 +158,47 @@ def get_args():
     for a in sys.argv:
         command_line=command_line+' '+a
     return (args_namespace,other_args,command_line)
+
+def add_burst_and_saturation_effects(args):
+    """
+    Add realistic burst effects and saturation characteristics
+    that occur in real DVS cameras under different conditions
+    """
+    # Simulate burst effects from bright/dark transitions
+    burst_probability = np.random.uniform(0.1, 0.3)
+    
+    # Simulate saturation effects in very bright/dark regions
+    # This affects the effective dynamic range
+    if np.random.random() < 0.3:  # 30% chance of challenging lighting
+        # Add some "hot pixels" or regions with different characteristics
+        args.noise_rate_cov_decades *= np.random.uniform(1.5, 2.5)
+        logger.info("Added hot pixel simulation with increased spatial noise variation")
+    
+    # Simulate temperature effects on noise
+    temperature_factor = np.random.uniform(0.8, 1.4)  # Simulate different operating temperatures
+    args.leak_rate_hz *= temperature_factor
+    args.shot_noise_rate_hz *= np.sqrt(temperature_factor)  # Shot noise scales with sqrt(T)
+    
+    # Add occasional "dead pixels" by creating extremely high thresholds for some pixels
+    if np.random.random() < 0.1:  # 10% chance
+        logger.info("Simulating occasional dead/stuck pixels with threshold variation")
+        args.sigma_thres *= np.random.uniform(1.5, 3.0)
+
 def set_args():
     (args,other_args,command_line) = get_args()
     args.timestamp_resolution=.003
 
-    
     args.pos_thres=.15
     args.neg_thres=.15
-    args.sigma_thres=0.03
     args.output_width = 346
     args.output_height = 260
-    args.cutoff_hz=15
     args.batch_size=16
+    
+    # Set realistic noise profile with random lighting conditions
+    set_realistic_noise_profile(args, 'random')
+    
+    # Add additional realistic camera effects
+    add_burst_and_saturation_effects(args)
     # DVS exposure
     exposure_mode, exposure_val, area_dimension = \
         v2e_check_dvs_exposure_args(args)
@@ -576,7 +654,7 @@ class VideoInfos:
         self.start_frame = start_frame
         self.stop_frame = stop_frame
         self.srcNumFramesToBeProccessed = srcNumFramesToBeProccessed
-        self.srcDurationToBeProcessed = srcDurationToBeProcessed  
+        self.srcDurationToBeProccessed = srcDurationToBeProcessed  
         self.srcVideoRealProcessedDuration = srcVideoRealProcessedDuration
         srcFrameIntervalS = (1./srcFps)/args.input_slowmotion_factor
         slowdown_factor = int(
@@ -607,6 +685,7 @@ def main(file_paths: str):
     
     emulator, eventRenderer, slomo, srcFrameIntervalS, slowdown_factor = get_models(args, vids, exposure_mode, exposure_val, area_dimension, torch_device)
     tmp_path = "/home/martin.barry/projects/tmp/"
+    # tmp_path = "/home/martin-barry/Downloads/tmp/"
     with TemporaryDirectory(dir = tmp_path) as source_frames_dir:
         vid_idx = 0
         max_frames = max([vid.srcNumFramesToBeProccessed for vid in vids])
@@ -637,8 +716,8 @@ if __name__ == "__main__":
     import glob
     import os
 
-    data_path = "/home/martin.barry/projects/surreal/" ## change to your data path
-    # data_path = "/home/martin-barry/Downloads/surreal/"
+    # data_path = "/home/martin.barry/projects/surreal/" ## change to your data path
+    data_path = "/home/martin-barry/Downloads/surreal/"
     processed_files = glob.glob(os.path.join(data_path.replace("surreal", "processed_surreal"), "**/*.h5"), recursive = True)
     files = glob.glob(os.path.join(data_path, "**/*.mp4"), recursive = True)
     files = [file for file in files if test_file_path(file, processed_files)]
@@ -646,7 +725,7 @@ if __name__ == "__main__":
     ## shuffling the files
     np.random.shuffle(files)
 
-    batch_size = 30
+    batch_size = 1
     
     start = time.time()
     elapsed = 0
